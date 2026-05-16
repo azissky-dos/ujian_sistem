@@ -1,6 +1,6 @@
 <?php
 // Cek apakah ada variabel host dari Railway
-if (isset($_ENV['MYSQLHOST']) || getenv('MYSQLHOST')) {
+if (getenv('MYSQLHOST') || isset($_ENV['MYSQLHOST'])) {
     // === SETTINGAN ONLINE (RAILWAY) ===
     $host = getenv('MYSQLHOST');
     $user = getenv('MYSQLUSER');
@@ -12,11 +12,11 @@ if (isset($_ENV['MYSQLHOST']) || getenv('MYSQLHOST')) {
     $host = 'localhost';
     $user = 'root';
     $pass = '';
-    $db   = 'ujian_system'; // <-- PAK, GANTI INI SESUAI DI XAMPP
+    $db   = 'Ujian_Sistem'; // <-- Sesuaikan dengan nama DB di phpMyAdmin laptop Bapak
     $port = '3306';
 }
 
-// Koneksi ke server MySQL
+// Koneksi ke server MySQL menggunakan @ untuk meredam crash di cloud jika DB belum siap
 $conn = @new mysqli($host, $user, $pass, $db, $port);
 
 // Jika gagal konek
