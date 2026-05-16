@@ -1,8 +1,13 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+include 'auth/login.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-header('Location: auth/login.php');
-exit();
+// Cek apakah file database ada di folder lokal atau cloud
+if (file_exists('config/database.php')) {
+    include 'config/database.php';
+} else {
+    include '../config/database.php';
+}
 ?>
