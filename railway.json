@@ -4,7 +4,15 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "start": "heroku-php-apache2",
+    "start": "apache2-foreground",
     "restartPolicyType": "ON_FAILURE"
+  },
+  "nixpacks": {
+    "providers": ["php"],
+    "pkgs": [
+      "php82",
+      "php82Packages.mysqli",
+      "php82Extensions.mysqli"
+    ]
   }
 }
