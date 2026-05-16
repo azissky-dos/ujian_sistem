@@ -1,11 +1,13 @@
 <?php
-// Mulai session dengan konfigurasi yang sama
+// includes/cek_login.php
+include __DIR__ . '/../config/config.php';
+
 if (session_status() === PHP_SESSION_NONE) {
     session_set_cookie_params([
         'lifetime' => 7200,
         'path' => '/',
         'domain' => '',
-        'secure' => false,
+        'secure' => IS_RAILWAY, // HTTPS di Railway
         'httponly' => true,
         'samesite' => 'Lax'
     ]);
@@ -13,10 +15,10 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: ../auth/login.php');
+    header('Location: ' . BASE_URL . '/auth/login.php');
     exit();
 }
 
-// Refresh session timeout (perpanjang session)
+// Refresh session timeout
 $_SESSION['LAST_ACTIVITY'] = time();
 ?>

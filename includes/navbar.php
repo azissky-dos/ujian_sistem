@@ -1,6 +1,7 @@
 <?php
 if (!isset($_SESSION['user_id'])) return;
-$base_url = '/Ujian_System';
+// Tidak perlu include config lagi karena sudah di-include di header
+$base_url = BASE_URL;
 ?>
 <aside class="sidebar glass-dark">
     <div class="sidebar-header">

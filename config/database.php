@@ -1,4 +1,6 @@
 <?php
+include __DIR__ . '/config.php'; // Tambahkan ini!
+
 // 1. PENGATURAN KONEKSI DATABASE (OTOMATIS CLOUD / LOKAL)
 if (getenv('MYSQLHOST') || isset($_ENV['MYSQLHOST'])) {
     $host = getenv('MYSQLHOST');
@@ -10,7 +12,7 @@ if (getenv('MYSQLHOST') || isset($_ENV['MYSQLHOST'])) {
     $host = 'localhost';
     $user = 'root';
     $pass = '';
-    $db   = 'Ujian_Sistem'; // Sesuaikan dengan nama database di XAMPP Bapak
+    $db   = 'Ujian_System'; // Sesuaikan dengan nama database di XAMPP Bapak
     $port = '3306';
 }
 

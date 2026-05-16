@@ -1,9 +1,10 @@
 <?php
-session_start();
-include '../includes/cek_login.php';
-include '../config/database.php';
+// Gunakan require_once untuk mencegah include berulang
+require_once __DIR__ . '/../config/config.php';
+require_once BASE_PATH . '/includes/cek_login.php';
+require_once BASE_PATH . '/config/database.php';
 
-// Parameter aman: cek role langsung tanpa include cek_role.php
+// Cek role
 if ($_SESSION['role'] != 'admin') {
     die("Akses ditolak!");
 }
@@ -15,7 +16,7 @@ $total_kelas = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total 
 $total_mk = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM mata_kuliah"))['total'];
 $total_soal = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM soal"))['total'];
 
-include '../includes/header.php';
+require_once BASE_PATH . '/includes/header.php';
 ?>
 
 <div class="page-header">
@@ -76,38 +77,38 @@ include '../includes/header.php';
         <i class="fas fa-users" style="font-size: 32px; color: #4f46e5;"></i>
         <h3 style="margin: 16px 0 8px 0;">Kelola Users</h3>
         <p style="color: #64748b;">Tambah/edit/hapus Admin & Dosen</p>
-        <a href="users/index.php" class="btn-primary" style="display: inline-block; margin-top: 16px;">Kelola →</a>
+        <a href="<?= BASE_URL ?>/admin/users/index.php" class="btn-primary" style="display: inline-block; margin-top: 16px;">Kelola →</a>
     </div>
     <div class="card-modern">
         <i class="fas fa-key" style="font-size: 32px; color: #4f46e5;"></i>
         <h3 style="margin: 16px 0 8px 0;">Reset Password</h3>
         <p style="color: #64748b;">Reset password semua user ke 123456</p>
-        <a href="reset_password/index.php" class="btn-primary" style="display: inline-block; margin-top: 16px;">Reset →</a>
+        <a href="<?= BASE_URL ?>/admin/reset_password/index.php" class="btn-primary" style="display: inline-block; margin-top: 16px;">Reset →</a>
     </div>
     <div class="card-modern">
         <i class="fas fa-school" style="font-size: 32px; color: #4f46e5;"></i>
         <h3 style="margin: 16px 0 8px 0;">Kelola Kelas</h3>
         <p style="color: #64748b;">Tambah/edit/hapus kelas</p>
-        <a href="kelas/index.php" class="btn-primary" style="display: inline-block; margin-top: 16px;">Kelola →</a>
+        <a href="<?= BASE_URL ?>/admin/kelas/index.php" class="btn-primary" style="display: inline-block; margin-top: 16px;">Kelola →</a>
     </div>
     <div class="card-modern">
         <i class="fas fa-book" style="font-size: 32px; color: #4f46e5;"></i>
         <h3 style="margin: 16px 0 8px 0;">Kelola Mata Kuliah</h3>
         <p style="color: #64748b;">Tambah/edit/hapus mata kuliah</p>
-        <a href="matakuliah/index.php" class="btn-primary" style="display: inline-block; margin-top: 16px;">Kelola →</a>
+        <a href="<?= BASE_URL ?>/admin/matakuliah/index.php" class="btn-primary" style="display: inline-block; margin-top: 16px;">Kelola →</a>
     </div>
     <div class="card-modern">
         <i class="fas fa-question-circle" style="font-size: 32px; color: #4f46e5;"></i>
         <h3 style="margin: 16px 0 8px 0;">Kelola Soal</h3>
         <p style="color: #64748b;">Lihat semua soal dari dosen</p>
-        <a href="soal/index.php" class="btn-primary" style="display: inline-block; margin-top: 16px;">Lihat →</a>
+        <a href="<?= BASE_URL ?>/admin/soal/index.php" class="btn-primary" style="display: inline-block; margin-top: 16px;">Lihat →</a>
     </div>
     <div class="card-modern">
         <i class="fas fa-chart-line" style="font-size: 32px; color: #4f46e5;"></i>
         <h3 style="margin: 16px 0 8px 0;">Laporan Nilai</h3>
         <p style="color: #64748b;">Rekap nilai seluruh mahasiswa</p>
-        <a href="laporan/nilai_all.php" class="btn-primary" style="display: inline-block; margin-top: 16px;">Lihat →</a>
+        <a href="<?= BASE_URL ?>/admin/laporan/nilai_all.php" class="btn-primary" style="display: inline-block; margin-top: 16px;">Lihat →</a>
     </div>
 </div>
 
-<?php include '../includes/footer.php'; ?>
+<?php require_once BASE_PATH . '/includes/footer.php'; ?>
