@@ -1,5 +1,25 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    // Atur parameter cookie agar aman dan kompatibel dengan enkripsi SSL/HTTPS di Railway
+    if (getenv('MYSQLHOST') || isset($_ENV['MYSQLHOST'])) {
+        session_set_cookie_params([
+            'lifetime' => 7200,
+            'path' => '/',
+            'secure' => true, // Wajib TRUE di cloud karena Railway menggunakan HTTPS
+            'httponly' => true,
+            'samesite' => 'Lax'
+        ]);
+    } else {
+        session_set_cookie_params([
+            'lifetime' => 7200,
+            'path' => '/',
+            'secure' => false, // FALSE untuk localhost XAMPP yang tidak pakai HTTPS
+            'httponly' => true,
+            'samesite' => 'Lax'
+        ]);
+    }
+    session_start();
+}
 include '../config/database.php';
 
 if (isset($_POST['login'])) {
