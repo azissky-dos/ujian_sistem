@@ -51,8 +51,8 @@ if (isset($_POST['register'])) {
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register Mahasiswa</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Registrasi Mahasiswa - Ujian Online</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -101,27 +101,12 @@ if (isset($_POST['register'])) {
         .auth-header h2 {
             font-size: 24px;
             color: #0f172a;
+            margin-bottom: 8px;
         }
 
         .auth-header p {
             color: #64748b;
-            margin-top: 8px;
-        }
-
-        .auth-footer {
-            text-align: center;
-            margin-top: 24px;
-            padding-top: 16px;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .auth-footer a {
-            color: #4f46e5;
-            text-decoration: none;
-        }
-
-        .auth-footer a:hover {
-            text-decoration: underline;
+            font-size: 14px;
         }
 
         .form-group {
@@ -133,6 +118,7 @@ if (isset($_POST['register'])) {
             font-weight: 600;
             margin-bottom: 8px;
             color: #1e293b;
+            font-size: 14px;
         }
 
         .form-control {
@@ -153,6 +139,11 @@ if (isset($_POST['register'])) {
 
         select.form-control {
             cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234f46e5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 20px;
         }
 
         .btn-primary {
@@ -164,40 +155,39 @@ if (isset($_POST['register'])) {
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
             font-size: 16px;
             font-family: 'Inter', sans-serif;
+            width: 100%;
         }
 
         .btn-primary:hover {
-            transform: scale(1.02);
+            transform: translateY(-2px);
             box-shadow: 0 10px 20px -5px rgba(99,102,241,0.4);
-        }
-
-        .btn-block {
-            width: 100%;
         }
 
         .alert {
             padding: 12px 16px;
             border-radius: 12px;
             margin-bottom: 20px;
+            font-size: 14px;
         }
 
         .alert.error {
             background: #fee2e2;
             color: #dc2626;
+            border-left: 4px solid #dc2626;
         }
 
         .alert.success {
             background: #dcfce7;
             color: #16a34a;
+            border-left: 4px solid #16a34a;
         }
 
         .alert.info {
             background: #e0e7ff;
             color: #4338ca;
+            border-left: 4px solid #4338ca;
         }
 
         .checkbox-group {
@@ -206,7 +196,7 @@ if (isset($_POST['register'])) {
             gap: 12px;
             max-height: 300px;
             overflow-y: auto;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #e2e8f0;
             border-radius: 12px;
             background: #f8fafc;
@@ -215,16 +205,18 @@ if (isset($_POST['register'])) {
         .checkbox-item {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 8px;
+            gap: 10px;
+            padding: 8px 12px;
             background: white;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             transition: all 0.2s;
+            border: 1px solid #e2e8f0;
         }
 
         .checkbox-item:hover {
             background: #e0e7ff;
+            border-color: #6366f1;
         }
 
         .checkbox-item input {
@@ -239,16 +231,23 @@ if (isset($_POST['register'])) {
             cursor: pointer;
             font-weight: normal;
             color: #1e293b;
+            font-size: 13px;
+            flex: 1;
+        }
+
+        .checkbox-item label strong {
+            color: #4f46e5;
         }
 
         .select-all {
-            margin-bottom: 10px;
-            padding: 8px;
+            margin-bottom: 12px;
+            padding: 10px 12px;
             background: #f1f5f9;
-            border-radius: 8px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            border: 1px solid #e2e8f0;
         }
 
         .select-all input {
@@ -261,8 +260,52 @@ if (isset($_POST['register'])) {
         .select-all label {
             margin: 0;
             cursor: pointer;
-            font-weight: 500;
+            font-weight: 600;
             color: #1e293b;
+            font-size: 14px;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .auth-footer p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .auth-footer a {
+            color: #4f46e5;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Required field indicator */
+        .required:after {
+            content: " *";
+            color: #dc2626;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .auth-card {
+                padding: 24px;
+            }
+            
+            .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .auth-header h2 {
+                font-size: 20px;
+            }
         }
     </style>
 </head>
@@ -272,34 +315,49 @@ if (isset($_POST['register'])) {
         <div class="auth-header">
             <i class="fas fa-user-plus"></i>
             <h2>Registrasi Mahasiswa</h2>
-            <p>Daftar untuk mengikuti ujian</p>
+            <p>Daftar untuk mengikuti ujian online</p>
         </div>
-        <?php if(isset($error)) echo "<div class='alert error'>$error</div>"; ?>
-        <?php if(isset($success)) echo "<div class='alert success'>$success</div>"; ?>
+        
+        <?php if(isset($error)): ?>
+            <div class="alert error">
+                <i class="fas fa-exclamation-circle"></i> <?= $error ?>
+            </div>
+        <?php endif; ?>
+        
+        <?php if(isset($success)): ?>
+            <div class="alert success">
+                <i class="fas fa-check-circle"></i> <?= $success ?>
+            </div>
+        <?php endif; ?>
         
         <form method="POST" id="registerForm">
             <div class="form-group">
-                <label>Username</label>
-                <input type="text" name="username" class="form-control" required>
+                <label class="required">Username</label>
+                <input type="text" name="username" class="form-control" placeholder="Masukkan username" required>
             </div>
+            
             <div class="form-group">
-                <label>Password</label>
-                <input type="password" name="password" class="form-control" required>
+                <label class="required">Password</label>
+                <input type="password" name="password" class="form-control" placeholder="Masukkan password" required>
             </div>
+            
             <div class="form-group">
-                <label>Nama Lengkap</label>
-                <input type="text" name="nama_lengkap" class="form-control" required>
+                <label class="required">Nama Lengkap</label>
+                <input type="text" name="nama_lengkap" class="form-control" placeholder="Masukkan nama lengkap" required>
             </div>
+            
             <div class="form-group">
                 <label>Email</label>
-                <input type="email" name="email" class="form-control">
+                <input type="email" name="email" class="form-control" placeholder="contoh: email@domain.com">
             </div>
+            
             <div class="form-group">
-                <label>NIM</label>
-                <input type="text" name="nim" class="form-control" required>
+                <label class="required">NIM</label>
+                <input type="text" name="nim" class="form-control" placeholder="Masukkan NIM" required>
             </div>
+            
             <div class="form-group">
-                <label>Pilih Kelas</label>
+                <label class="required">Pilih Kelas</label>
                 <select name="kelas_id" id="kelas_id" class="form-control" required>
                     <option value="">-- Pilih Kelas --</option>
                     <?php while($k = mysqli_fetch_assoc($kelas_list)): ?>
@@ -309,18 +367,24 @@ if (isset($_POST['register'])) {
             </div>
             
             <div class="form-group">
-                <label>Pilih Mata Kuliah (centang yang akan diikuti)</label>
+                <label class="required">Pilih Mata Kuliah</label>
                 <div id="mk_checklist">
-                    <div class="alert info" style="text-align:center;">
+                    <div class="alert info">
                         <i class="fas fa-info-circle"></i> Silakan pilih kelas terlebih dahulu
                     </div>
                 </div>
+                <small style="color: #64748b; font-size: 12px; margin-top: 8px; display: block;">
+                    <i class="fas fa-check-circle"></i> Centang mata kuliah yang akan diikuti
+                </small>
             </div>
             
-            <button type="submit" name="register" class="btn-primary btn-block">Daftar</button>
+            <button type="submit" name="register" class="btn-primary">
+                <i class="fas fa-user-check"></i> Daftar Sekarang
+            </button>
         </form>
+        
         <div class="auth-footer">
-            <p>Sudah punya akun? <a href="<?= BASE_URL ?>/auth/login.php">Login</a></p>
+            <p>Sudah punya akun? <a href="<?= BASE_URL ?>/auth/login.php">Login disini</a></p>
         </div>
     </div>
 </div>
@@ -330,6 +394,8 @@ $(document).ready(function() {
     $('#kelas_id').change(function() {
         var kelas_id = $(this).val();
         if(kelas_id) {
+            $('#mk_checklist').html('<div class="alert info"><i class="fas fa-spinner fa-spin"></i> Memuat data mata kuliah...</div>');
+            
             $.ajax({
                 url: '<?= BASE_URL ?>/auth/get_mk_by_kelas.php',
                 type: 'POST',
@@ -340,7 +406,7 @@ $(document).ready(function() {
                     if(data.length > 0) {
                         html += '<div class="select-all">';
                         html += '<input type="checkbox" id="select_all_mk">';
-                        html += '<label for="select_all_mk">Pilih Semua Mata Kuliah</label>';
+                        html += '<label for="select_all_mk">📋 Pilih Semua Mata Kuliah</label>';
                         html += '</div>';
                         html += '<div class="checkbox-group" id="checkbox_group">';
                         for(var i = 0; i < data.length; i++) {
@@ -351,7 +417,7 @@ $(document).ready(function() {
                         }
                         html += '</div>';
                     } else {
-                        html = '<div class="alert error" style="text-align:center;">Belum ada mata kuliah di kelas ini. Hubungi admin.</div>';
+                        html = '<div class="alert error"><i class="fas fa-exclamation-triangle"></i> Belum ada mata kuliah di kelas ini. Hubungi admin.</div>';
                     }
                     $('#mk_checklist').html(html);
                     
@@ -359,12 +425,13 @@ $(document).ready(function() {
                         $('input[name="mk_induk_ids[]"]').prop('checked', $(this).prop('checked'));
                     });
                 },
-                error: function() {
-                    $('#mk_checklist').html('<div class="alert error" style="text-align:center;">Gagal memuat data mata kuliah. Silakan coba lagi.</div>');
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', error);
+                    $('#mk_checklist').html('<div class="alert error"><i class="fas fa-exclamation-circle"></i> Gagal memuat data mata kuliah. Silakan coba lagi.</div>');
                 }
             });
         } else {
-            $('#mk_checklist').html('<div class="alert info" style="text-align:center;"><i class="fas fa-info-circle"></i> Silakan pilih kelas terlebih dahulu</div>');
+            $('#mk_checklist').html('<div class="alert info"><i class="fas fa-info-circle"></i> Silakan pilih kelas terlebih dahulu</div>');
         }
     });
 });
