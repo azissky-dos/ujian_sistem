@@ -1,26 +1,26 @@
 <?php
-// 1. Cek apakah aplikasi sedang berjalan di Railway
-if (getenv('MYSQLHOST')) {
-    // === KONFIGURASI UNTUK RAILWAY ===
+// Cek apakah ada variabel host dari Railway
+if (isset($_ENV['MYSQLHOST']) || getenv('MYSQLHOST')) {
+    // === SETTINGAN ONLINE (RAILWAY) ===
     $host = getenv('MYSQLHOST');
     $user = getenv('MYSQLUSER');
     $pass = getenv('MYSQLPASSWORD');
     $db   = getenv('MYSQLDATABASE');
     $port = getenv('MYSQLPORT');
 } else {
-    // === KONFIGURASI UNTUK LOCALHOST (XAMPP) ===
+    // === SETTINGAN LOKAL (XAMPP LAPTOP) ===
     $host = 'localhost';
-    $user = 'root';      // Default XAMPP
-    $pass = '';          // Default XAMPP biasanya kosong
-    $db   = 'ujian_system'; // Sesuaikan dengan nama DB di phpMyAdmin laptop
-    $port = '3306';      // Default port MySQL XAMPP
+    $user = 'root';
+    $pass = '';
+    $db   = 'ujian_system'; // <-- PAK, GANTI INI SESUAI DI XAMPP
+    $port = '3306';
 }
 
-// 2. Eksekusi koneksi menggunakan data di atas
-$conn = new mysqli($host, $user, $pass, $db, $port);
+// Koneksi ke server MySQL
+$conn = @new mysqli($host, $user, $pass, $db, $port);
 
-// 3. Cek Koneksi
+// Jika gagal konek
 if ($conn->connect_error) {
-    die("Koneksi database gagal: " . $conn->connect_error);
+    die("Gagal terhubung ke database: " . $conn->connect_error);
 }
 ?>
