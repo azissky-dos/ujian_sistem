@@ -55,9 +55,151 @@ if (isset($_POST['register'])) {
     <title>Register Mahasiswa</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: white;
+            border-radius: 32px;
+            padding: 40px;
+            width: 100%;
+            max-width: 650px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .auth-header i {
+            font-size: 48px;
+            color: #4f46e5;
+            margin-bottom: 16px;
+        }
+
+        .auth-header h2 {
+            font-size: 24px;
+            color: #0f172a;
+        }
+
+        .auth-header p {
+            color: #64748b;
+            margin-top: 8px;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .auth-footer a {
+            color: #4f46e5;
+            text-decoration: none;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1e293b;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+        }
+
+        select.form-control {
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 20px -5px rgba(99,102,241,0.4);
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .alert.error {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .alert.success {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .alert.info {
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+
         .checkbox-group {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -69,6 +211,7 @@ if (isset($_POST['register'])) {
             border-radius: 12px;
             background: #f8fafc;
         }
+
         .checkbox-item {
             display: flex;
             align-items: center;
@@ -79,21 +222,25 @@ if (isset($_POST['register'])) {
             cursor: pointer;
             transition: all 0.2s;
         }
+
         .checkbox-item:hover {
             background: #e0e7ff;
         }
+
         .checkbox-item input {
             width: 18px;
             height: 18px;
             cursor: pointer;
             accent-color: #4f46e5;
         }
+
         .checkbox-item label {
             margin: 0;
             cursor: pointer;
             font-weight: normal;
             color: #1e293b;
         }
+
         .select-all {
             margin-bottom: 10px;
             padding: 8px;
@@ -103,11 +250,25 @@ if (isset($_POST['register'])) {
             align-items: center;
             gap: 8px;
         }
+
+        .select-all input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #4f46e5;
+        }
+
+        .select-all label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 500;
+            color: #1e293b;
+        }
     </style>
 </head>
 <body>
 <div class="auth-container">
-    <div class="auth-card" style="max-width: 650px;">
+    <div class="auth-card">
         <div class="auth-header">
             <i class="fas fa-user-plus"></i>
             <h2>Registrasi Mahasiswa</h2>
@@ -150,7 +311,7 @@ if (isset($_POST['register'])) {
             <div class="form-group">
                 <label>Pilih Mata Kuliah (centang yang akan diikuti)</label>
                 <div id="mk_checklist">
-                    <div class="alert info" style="text-align:center; background:#f1f5f9;">
+                    <div class="alert info" style="text-align:center;">
                         <i class="fas fa-info-circle"></i> Silakan pilih kelas terlebih dahulu
                     </div>
                 </div>
@@ -179,7 +340,7 @@ $(document).ready(function() {
                     if(data.length > 0) {
                         html += '<div class="select-all">';
                         html += '<input type="checkbox" id="select_all_mk">';
-                        html += '<label for="select_all_mk" style="margin:0; font-weight:500;">Pilih Semua Mata Kuliah</label>';
+                        html += '<label for="select_all_mk">Pilih Semua Mata Kuliah</label>';
                         html += '</div>';
                         html += '<div class="checkbox-group" id="checkbox_group">';
                         for(var i = 0; i < data.length; i++) {
@@ -197,10 +358,13 @@ $(document).ready(function() {
                     $('#select_all_mk').change(function() {
                         $('input[name="mk_induk_ids[]"]').prop('checked', $(this).prop('checked'));
                     });
+                },
+                error: function() {
+                    $('#mk_checklist').html('<div class="alert error" style="text-align:center;">Gagal memuat data mata kuliah. Silakan coba lagi.</div>');
                 }
             });
         } else {
-            $('#mk_checklist').html('<div class="alert info" style="text-align:center; background:#f1f5f9;"><i class="fas fa-info-circle"></i> Silakan pilih kelas terlebih dahulu</div>');
+            $('#mk_checklist').html('<div class="alert info" style="text-align:center;"><i class="fas fa-info-circle"></i> Silakan pilih kelas terlebih dahulu</div>');
         }
     });
 });
