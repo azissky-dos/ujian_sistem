@@ -1,6 +1,7 @@
 <?php
-include '../config/database.php';
-include '../includes/fungsi.php';
+include __DIR__ . '/../config/config.php';
+include BASE_PATH . '/config/database.php';
+include BASE_PATH . '/includes/fungsi.php';
 
 // Ambil daftar kelas
 $kelas_list = mysqli_query($conn, "SELECT * FROM kelas ORDER BY nama_kelas");
@@ -54,7 +55,7 @@ if (isset($_POST['register'])) {
     <title>Register Mahasiswa</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         .checkbox-group {
@@ -158,7 +159,7 @@ if (isset($_POST['register'])) {
             <button type="submit" name="register" class="btn-primary btn-block">Daftar</button>
         </form>
         <div class="auth-footer">
-            <p>Sudah punya akun? <a href="login.php">Login</a></p>
+            <p>Sudah punya akun? <a href="<?= BASE_URL ?>/auth/login.php">Login</a></p>
         </div>
     </div>
 </div>
@@ -169,7 +170,7 @@ $(document).ready(function() {
         var kelas_id = $(this).val();
         if(kelas_id) {
             $.ajax({
-                url: 'get_mk_by_kelas.php',
+                url: '<?= BASE_URL ?>/auth/get_mk_by_kelas.php',
                 type: 'POST',
                 data: {kelas_id: kelas_id},
                 dataType: 'json',

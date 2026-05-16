@@ -1,5 +1,6 @@
 <?php
-include '../config/database.php';
+include __DIR__ . '/../config/config.php';
+include BASE_PATH . '/config/database.php';
 
 $kelas_id = $_POST['kelas_id'];
 

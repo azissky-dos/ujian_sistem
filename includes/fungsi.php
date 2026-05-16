@@ -1,9 +1,9 @@
 <?php
-include __DIR__ . '/config.php'; // Tambahkan ini!
-
 // ======================================================
 // FILE: includes/fungsi.php
 // ======================================================
+
+include __DIR__ . '/../config/config.php';
 
 // Fungsi menghitung similarity 2 string (Essay Argument)
 function similarity($str1, $str2) {
