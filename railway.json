@@ -4,13 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "start": "apache2-foreground",
-    "configFile": "railway.json"
-  },
-  "nixpacks": {
-    "providers": ["php"],
-    "plugins": [],
-    "aptPackages": [],
-    "pkgs": ["php82Packages.mysqli", "php82Extensions.mysqli"]
+    "start": "heroku-php-apache2",
+    "restartPolicyType": "ON_FAILURE"
   }
 }
