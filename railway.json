@@ -1,10 +1,6 @@
 {
-  "build": {
-    "builder": "NIXPACKS"
-  },
+  "$schema": "https://railway.com/railway.schema.json",
   "deploy": {
-    "start": {
-      "cmd": "docker-php-ext-install mysqli && php -S 0.0.0.0:$PORT index.php"
-    }
+    "startCommand": "php -S 0.0.0.0:$PORT index.php"
   }
 }
