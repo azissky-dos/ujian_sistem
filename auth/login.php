@@ -1,6 +1,14 @@
 <?php
 session_start();
-include '../config/database.php';
+
+// Ganti baris include '../config/database.php'; dengan ini:
+if (getenv('MYSQLHOST') || isset($_ENV['MYSQLHOST'])) {
+    // Jalur mutlak khusus di server Railway (Linux)
+    include $_SERVER['DOCUMENT_ROOT'] . '/config/database.php';
+} else {
+    // Jalur mutlak khusus di XAMPP laptop Bapak (Windows)
+    include $_SERVER['DOCUMENT_ROOT'] . '/Ujian_System/config/database.php';
+}
 
 if (isset($_POST['login'])) {
     $username = mysqli_real_escape_string($conn, $_POST['username']);
