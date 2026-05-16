@@ -12,7 +12,7 @@ if (getenv('MYSQLHOST') || isset($_ENV['MYSQLHOST'])) {
     $host = 'localhost';
     $user = 'root';
     $pass = '';
-    $db   = 'Ujian_Sistem'; // <-- Sesuaikan dengan nama DB di phpMyAdmin laptop Bapak
+    $db   = 'Ujian_System'; // <-- Sesuaikan dengan nama DB di phpMyAdmin laptop Bapak
     $port = '3306';
 }
 
