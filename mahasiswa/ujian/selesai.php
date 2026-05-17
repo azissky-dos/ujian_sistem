@@ -1,16 +1,21 @@
 <?php
 session_start();
-include '../../includes/cek_login.php';
-include '../../config/database.php';
+require_once __DIR__ . '/../../includes/cek_login.php';
+require_once __DIR__ . '/../../config/database.php';
 
 if ($_SESSION['role'] != 'mahasiswa') {
     die("Akses ditolak!");
 }
 
-$ujian_id = $_GET['id'];
+$ujian_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $ujian = mysqli_fetch_assoc(mysqli_query($conn, "SELECT u.*, mk.nama_mk FROM ujian u JOIN mata_kuliah mk ON u.mk_id=mk.id WHERE u.id=$ujian_id"));
 
-include '../../includes/header.php';
+if (!$ujian) {
+    header('Location: ../dashboard.php');
+    exit();
+}
+
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
 <div class="page-header">
@@ -25,4 +30,4 @@ include '../../includes/header.php';
     <a href="../riwayat/nilai.php" class="btn-outline">Lihat Riwayat Nilai</a>
 </div>
 
-<?php include '../../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../../includes/footer.php'; ?>

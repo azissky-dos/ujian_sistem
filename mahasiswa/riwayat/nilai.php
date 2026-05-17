@@ -1,7 +1,7 @@
 <?php
 session_start();
-include '../../includes/cek_login.php';
-include '../../config/database.php';
+require_once __DIR__ . '/../../includes/cek_login.php';
+require_once __DIR__ . '/../../config/database.php';
 
 if ($_SESSION['role'] != 'mahasiswa') {
     die("Akses ditolak!");
@@ -58,7 +58,7 @@ while($row = mysqli_fetch_assoc($riwayat)) {
 }
 $rata_rata = $count > 0 ? round($total_nilai / $count, 2) : 0;
 
-include '../../includes/header.php';
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
 <div class="page-header">
@@ -98,7 +98,6 @@ include '../../includes/header.php';
             <select name="mk_induk_id" class="form-control" style="width: 250px;">
                 <option value="">-- Semua MK --</option>
                 <?php 
-                // Reset pointer hasil query untuk digunakan lagi
                 if(mysqli_num_rows($mk_list) > 0) {
                     mysqli_data_seek($mk_list, 0);
                     while($mk = mysqli_fetch_assoc($mk_list)): 
@@ -134,17 +133,17 @@ include '../../includes/header.php';
             <?php if($count > 0): ?>
                 <?php foreach($nilai_array as $row): ?>
                 <tr>
-                    <td><?= htmlspecialchars($row['kode_mk']) ?> - <?= htmlspecialchars($row['nama_mk']) ?> </td>
-                    <td><?= htmlspecialchars($row['nama_kelas']) ?> </td>
-                    <td><strong><?= round($row['nilai_akhir'], 2) ?></strong> </td>
-                    <td><?= date('d/m/Y H:i', strtotime($row['selesai_ujian'])) ?> </td>
+                    <td><?= htmlspecialchars($row['kode_mk']) ?> - <?= htmlspecialchars($row['nama_mk']) ?></td>
+                    <td><?= htmlspecialchars($row['nama_kelas']) ?></td>
+                    <td><strong><?= round($row['nilai_akhir'], 2) ?></strong></td>
+                    <td><?= date('d/m/Y H:i', strtotime($row['selesai_ujian'])) ?></td>
                 </tr>
                 <?php endforeach; ?>
             <?php else: ?>
                 <tr>
                     <td colspan="4" style="text-align:center">
                         <?= (!empty($search) || $filter_mk > 0) ? "Tidak ada data yang cocok" : "Belum ada riwayat ujian" ?>
-                     ﹏
+                    </td>
                 </tr>
             <?php endif; ?>
         </tbody>
@@ -156,4 +155,4 @@ include '../../includes/header.php';
     <?php endif; ?>
 </div>
 
-<?php include '../../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../../includes/footer.php'; ?>

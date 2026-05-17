@@ -1,22 +1,25 @@
 <?php
 session_start();
-include '../../includes/cek_login.php';
-include '../../config/database.php';
-include '../../includes/fungsi.php';
+require_once __DIR__ . '/../../includes/cek_login.php';
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/fungsi.php';
 
 if ($_SESSION['role'] != 'mahasiswa') {
     die("Akses ditolak!");
 }
 
-$mk_induk_id = $_GET['mk_induk_id'];
+$mk_induk_id = isset($_GET['mk_induk_id']) ? (int)$_GET['mk_induk_id'] : 0;
 $mahasiswa_id = $_SESSION['user_id'];
 
-// Cari mata_kuliah_id berdasarkan mk_induk_id (ambil salah satu kelas)
+// Cari mata_kuliah_id berdasarkan mk_induk_id
 $mk = mysqli_fetch_assoc(mysqli_query($conn, "SELECT id, durasi_ujian FROM mata_kuliah WHERE mk_induk_id = $mk_induk_id LIMIT 1"));
+if (!$mk) {
+    die("Mata kuliah tidak ditemukan!");
+}
 $mk_id = $mk['id'];
 $durasi_ujian = $mk['durasi_ujian'];
 
-// Dapatkan enrollment_id (cari yang sesuai dengan mk_induk_id)
+// Dapatkan enrollment_id
 $enroll = mysqli_fetch_assoc(mysqli_query($conn, "
     SELECT e.id 
     FROM enrollments e
@@ -24,6 +27,9 @@ $enroll = mysqli_fetch_assoc(mysqli_query($conn, "
     WHERE e.mahasiswa_id = $mahasiswa_id AND em.mk_induk_id = $mk_induk_id AND em.status = 'active'
     LIMIT 1
 "));
+if (!$enroll) {
+    die("Anda tidak terdaftar di mata kuliah ini!");
+}
 $enrollment_id = $enroll['id'];
 
 // Cek ujian sedang berlangsung
@@ -36,6 +42,9 @@ if ($ujian_aktif) {
 } else {
     // Ambil soal dari MK Induk
     $soal_ids = ambilSoalAcakInduk($mk_induk_id, 5, $conn);
+    if (empty($soal_ids)) {
+        die("Soal belum tersedia untuk mata kuliah ini!");
+    }
     
     mysqli_query($conn, "INSERT INTO ujian (enrollment_id, mk_id, mulai_ujian, status, soal_yang_dikeluarkan) 
                          VALUES ($enrollment_id, $mk_id, NOW(), 'sedang', '" . json_encode($soal_ids) . "')");
@@ -47,7 +56,7 @@ $mulai_time = strtotime($mulai);
 $waktu_habis = $mulai_time + ($durasi_ujian * 60);
 $sisa_detik = max(0, $waktu_habis - time());
 
-include '../../includes/header.php';
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
 <div class="ujian-header">
@@ -59,6 +68,7 @@ include '../../includes/header.php';
     <div id="soal_container">
         <?php $no = 1; foreach($soal_ids as $soal_id):
             $soal = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM soal WHERE id=$soal_id"));
+            if (!$soal) continue;
         ?>
         <div class="soal-card" data-soal-id="<?= $soal_id ?>" data-soal-no="<?= $no ?>">
             <div><span class="soal-number"><?= $no++ ?></span> <strong class="soal-teks"><?= htmlspecialchars($soal['teks_soal']) ?></strong></div>
@@ -103,7 +113,6 @@ let mkIndukId = <?= $mk_induk_id ?>;
 let timerInterval;
 let isSubmitting = false;
 
-// Timer
 function updateTimer() {
     if (sisaDetik <= 0) {
         clearInterval(timerInterval);
@@ -120,7 +129,6 @@ function updateTimer() {
 }
 timerInterval = setInterval(updateTimer, 1000);
 
-// Kirim ujian
 function kirimUjian() {
     if (isSubmitting) return;
     isSubmitting = true;
@@ -137,13 +145,14 @@ function kirimUjian() {
     }).then(res => res.json()).then(data => {
         if (data.status === 'success') {
             window.location.href = 'selesai.php?id=' + ujianId;
+        } else {
+            isSubmitting = false;
         }
     }).catch(() => {
         isSubmitting = false;
     });
 }
 
-// Acak ulang soal
 function acakUlangSoal() {
     fetch('acak_ulang.php', {
         method: 'POST',
@@ -163,7 +172,6 @@ function acakUlangSoal() {
     });
 }
 
-// Update container soal
 function updateSoalContainer(soalData) {
     let container = document.getElementById('soal_container');
     let html = '';
@@ -198,15 +206,6 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// Ambil jumlah pindah tab
-function getPindahCount(callback) {
-    fetch('get_pindah_count.php?ujian_id=' + ujianId + '&t=' + Date.now())
-        .then(res => res.json())
-        .then(data => callback(data.count))
-        .catch(() => callback(0));
-}
-
-// Deteksi pindah tab
 let isProcessing = false;
 
 document.addEventListener('visibilitychange', function() {
@@ -237,4 +236,4 @@ document.addEventListener('visibilitychange', function() {
 });
 </script>
 
-<?php include '../../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../../includes/footer.php'; ?>

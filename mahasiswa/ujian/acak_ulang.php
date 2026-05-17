@@ -1,17 +1,22 @@
 <?php
 session_start();
-include '../../config/database.php';
+require_once __DIR__ . '/../../config/database.php';
 
 $input = json_decode(file_get_contents('php://input'), true);
-$ujian_id = $input['ujian_id'];
-$mk_induk_id = $input['mk_induk_id'];
+$ujian_id = isset($input['ujian_id']) ? (int)$input['ujian_id'] : 0;
+$mk_induk_id = isset($input['mk_induk_id']) ? (int)$input['mk_induk_id'] : 0;
 
 // Ambil semua soal dari MK Induk
 $query = "SELECT id FROM soal WHERE mk_induk_id = $mk_induk_id";
 $result = mysqli_query($conn, $query);
 $semua_soal = [];
 while ($row = mysqli_fetch_assoc($result)) {
-    $semua_soal[] = $row['id'];
+    $semua_soal[] = (int)$row['id'];
+}
+
+if (count($semua_soal) < 5) {
+    echo json_encode(['status' => 'error', 'message' => 'Soal tidak mencukupi']);
+    exit();
 }
 
 // Acak dan ambil 5 soal baru

@@ -1,7 +1,7 @@
 <?php
 session_start();
-include '../includes/cek_login.php';
-include '../config/database.php';
+require_once __DIR__ . '/../includes/cek_login.php';
+require_once __DIR__ . '/../config/database.php';
 
 if ($_SESSION['role'] != 'mahasiswa') {
     die("Akses ditolak!");
@@ -29,7 +29,7 @@ if (isset($_POST['ganti_password'])) {
     }
 }
 
-include '../includes/header.php';
+require_once __DIR__ . '/../includes/header.php';
 ?>
 
 <div class="page-header">
@@ -76,4 +76,4 @@ include '../includes/header.php';
     </form>
 </div>
 
-<?php include '../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>

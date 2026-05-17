@@ -1,7 +1,7 @@
 <?php
 session_start();
-include '../includes/cek_login.php';
-include '../config/database.php';
+require_once __DIR__ . '/../includes/cek_login.php';
+require_once __DIR__ . '/../config/database.php';
 
 if ($_SESSION['role'] != 'mahasiswa') {
     die("Akses ditolak!");
@@ -9,15 +9,22 @@ if ($_SESSION['role'] != 'mahasiswa') {
 
 $mahasiswa_id = $_SESSION['user_id'];
 
-// Ambil daftar mata kuliah yang dipilih mahasiswa (GROUP BY mk_induk_id)
+// PERBAIKAN QUERY - Fix ONLY_FULL_GROUP_BY
 $ujian_list = mysqli_query($conn, "
     SELECT 
         mki.id as mk_induk_id,
         mki.kode_mk,
         mki.nama_mk,
-        MIN(k.nama_kelas) as nama_kelas,
-        MIN(mk.durasi_ujian) as durasi_ujian,
-        MIN(mk.is_latihan) as is_latihan,
+        (SELECT MIN(k.nama_kelas) 
+         FROM mata_kuliah mk2 
+         JOIN kelas k ON mk2.kelas_id = k.id 
+         WHERE mk2.mk_induk_id = mki.id) as nama_kelas,
+        (SELECT MIN(mk2.durasi_ujian) 
+         FROM mata_kuliah mk2 
+         WHERE mk2.mk_induk_id = mki.id) as durasi_ujian,
+        (SELECT MIN(mk2.is_latihan) 
+         FROM mata_kuliah mk2 
+         WHERE mk2.mk_induk_id = mki.id) as is_latihan,
         (SELECT COUNT(*) FROM soal WHERE mk_induk_id = mki.id) as total_soal,
         (SELECT COUNT(*) FROM ujian u 
          JOIN mata_kuliah mk2 ON u.mk_id = mk2.id
@@ -25,16 +32,19 @@ $ujian_list = mysqli_query($conn, "
          AND u.enrollment_id IN (SELECT id FROM enrollments WHERE mahasiswa_id = $mahasiswa_id) 
          AND u.status = 'selesai') as sudah_ujian
     FROM mata_kuliah_induk mki
-    JOIN mata_kuliah mk ON mk.mk_induk_id = mki.id
-    JOIN kelas k ON mk.kelas_id = k.id
-    JOIN enrollment_mk em ON em.mk_induk_id = mki.id
-    JOIN enrollments e ON em.enrollment_id = e.id
-    WHERE e.mahasiswa_id = $mahasiswa_id AND e.status = 'active' AND em.status = 'active'
-    GROUP BY mki.id
+    WHERE EXISTS (
+        SELECT 1 
+        FROM enrollment_mk em 
+        JOIN enrollments e ON em.enrollment_id = e.id 
+        WHERE e.mahasiswa_id = $mahasiswa_id 
+        AND em.mk_induk_id = mki.id 
+        AND em.status = 'active'
+        AND e.status = 'active'
+    )
     ORDER BY mki.nama_mk
 ");
 
-include '../includes/header.php';
+require_once __DIR__ . '/../includes/header.php';
 ?>
 
 <div class="page-header">
@@ -76,4 +86,4 @@ include '../includes/header.php';
     </div>
 <?php endif; ?>
 
-<?php include '../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>
