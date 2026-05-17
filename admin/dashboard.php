@@ -2,7 +2,7 @@
 session_start();
 
 // Tentukan BASE_PATH secara manual (AMAN)
-$base_path = dirname(__DIR__, 2);  // naik 2 level dari admin/xxx/ ke root
+$base_path = dirname(__DIR__, 1);  // naik 2 level dari admin/xxx/ ke root
 require_once $base_path . '/config/config.php';
 
 // Cek login
