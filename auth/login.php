@@ -22,7 +22,7 @@ if (isset($_POST['login'])) {
         $_SESSION['LAST_ACTIVITY'] = time();
         
         if ($user['role'] == 'admin') {
-            header('Location: ' . BASE_URL . '/admin/dashboard.php');
+            header('Location: admin/dashboard.php');
         } elseif ($user['role'] == 'dosen') {
             header('Location: ' . BASE_URL . '/dosen/dashboard.php');
         } elseif ($user['role'] == 'mahasiswa') {
@@ -115,7 +115,7 @@ if (isset($_SESSION['user_id'])) {
         </form>
         
         <div class="auth-footer">
-            <p>Belum punya akun? <a href="<?= BASE_URL ?>/auth/register_mahasiswa.php">Registrasi Mahasiswa</a></p>
+            <p>Belum punya akun? <a href="register_mahasiswa.php">Registrasi Mahasiswa</a></p>
         </div>
     </div>
 </div>
