@@ -21,12 +21,13 @@ if (isset($_POST['login'])) {
         $_SESSION['role'] = $user['role'];
         $_SESSION['LAST_ACTIVITY'] = time();
         
+        // Redirect PAKAI PATH RELATIF (PASTI JALAN)
         if ($user['role'] == 'admin') {
-            header('Location: admin/dashboard.php');
+            header('Location: ../admin/dashboard.php');
         } elseif ($user['role'] == 'dosen') {
-            header('Location: ' . BASE_URL . '/dosen/dashboard.php');
+            header('Location: ../dosen/dashboard.php');
         } elseif ($user['role'] == 'mahasiswa') {
-            header('Location: ' . BASE_URL . '/mahasiswa/dashboard.php');
+            header('Location: ../mahasiswa/dashboard.php');
         }
         exit();
     } else {
@@ -37,11 +38,11 @@ if (isset($_POST['login'])) {
 // Cek jika sudah login
 if (isset($_SESSION['user_id'])) {
     if ($_SESSION['role'] == 'admin') {
-        header('Location: admin/dashboard.php');
+        header('Location: ../admin/dashboard.php');
     } elseif ($_SESSION['role'] == 'dosen') {
-        header('Location: ' . BASE_URL . '/dosen/dashboard.php');
+        header('Location: ../dosen/dashboard.php');
     } elseif ($_SESSION['role'] == 'mahasiswa') {
-        header('Location: ' . BASE_URL . '/mahasiswa/dashboard.php');
+        header('Location: ../mahasiswa/dashboard.php');
     }
     exit();
 }
