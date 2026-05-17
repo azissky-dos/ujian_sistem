@@ -189,7 +189,7 @@ function kirimUjian() {
     });
 }
 
-// Fungsi catat pindah dan proses acak DENGAN KONFIRMASI
+// Fungsi catat pindah dan proses acak
 function prosesPindah() {
     fetch('catat_pindah.php', {
         method: 'POST',
@@ -204,22 +204,18 @@ function prosesPindah() {
             alert('❌ Anda telah pindah tab sebanyak 3 kali! Ujian akan dikirim.');
             kirimUjian();
         } else {
-            // TAMPILKAN KONFIRMASI DULU
-            let userConfirm = confirm(`⚠️ PERINGATAN ${pindahCount}/3!\n\nAnda telah pindah tab. Soal akan diacak ulang.\n\nApakah Anda ingin melanjutkan?`);
-            
-            if (userConfirm) {
-                // Acak soal
-                fetch('acak_ulang.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ujian_id: ujianId, mk_induk_id: mkIndukId })
-                })
-                .then(res => res.json())
-                .then(() => {
-                    location.reload();
-                })
-                .catch(err => console.error('Acak error:', err));
-            }
+            alert(`⚠️ PERINGATAN ${pindahCount}/3! Jangan pindah tab. Soal akan diacak ulang.`);
+            // Acak soal
+            fetch('acak_ulang.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ujian_id: ujianId, mk_induk_id: mkIndukId })
+            })
+            .then(res => res.json())
+            .then(() => {
+                location.reload();
+            })
+            .catch(err => console.error('Acak error:', err));
         }
     })
     .catch(err => console.error('Error:', err));
