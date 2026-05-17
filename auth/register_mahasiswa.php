@@ -1,7 +1,7 @@
 <?php
 include __DIR__ . '/../config/config.php';
-include BASE_PATH . '/config/database.php';
-include BASE_PATH . '/includes/fungsi.php';
+include __DIR__ . '/../config/database.php';
+include __DIR__ . '/../includes/fungsi.php';
 
 // Ambil daftar kelas
 $kelas_list = mysqli_query($conn, "SELECT * FROM kelas ORDER BY nama_kelas");
