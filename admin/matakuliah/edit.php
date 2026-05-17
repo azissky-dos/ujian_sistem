@@ -1,7 +1,8 @@
 <?php
 session_start();
-include '../../includes/cek_login.php';
-include '../../config/database.php';
+include __DIR__ . '/../config/config.php';
+include BASE_PATH . '/includes/cek_login.php';
+include BASE_PATH . '/config/database.php';
 
 if ($_SESSION['role'] != 'admin') {
     die("Akses ditolak!");
@@ -10,10 +11,7 @@ if ($_SESSION['role'] != 'admin') {
 $id = $_GET['id'];
 $mk = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM mata_kuliah WHERE id=$id"));
 
-// Ambil daftar kelas
 $kelas_list = mysqli_query($conn, "SELECT id, nama_kelas FROM kelas ORDER BY nama_kelas");
-
-// Ambil daftar dosen
 $dosen_list = mysqli_query($conn, "SELECT id, nama_lengkap FROM users WHERE role = 'dosen' ORDER BY nama_lengkap");
 
 if (isset($_POST['update'])) {
@@ -24,16 +22,16 @@ if (isset($_POST['update'])) {
     
     $query = "UPDATE mata_kuliah SET kelas_id='$kelas_id', dosen_id=$dosen_id, durasi_ujian='$durasi_ujian', is_latihan='$is_latihan' WHERE id='$id'";
     mysqli_query($conn, $query);
-    header('Location: index.php');
+    header('Location: ' . BASE_URL . '/admin/matakuliah/index.php');
     exit();
 }
 
-include '../../includes/header.php';
+include BASE_PATH . '/includes/header.php';
 ?>
 
 <div class="page-header">
     <h1 class="page-title">Edit Mata Kuliah di Kelas</h1>
-    <a href="index.php" class="btn-outline">← Kembali ke Daftar</a>
+    <a href="<?= BASE_URL ?>/admin/matakuliah/index.php" class="btn-outline">← Kembali</a>
 </div>
 
 <div class="card-modern" style="max-width:550px; margin:0 auto;">
@@ -41,13 +39,11 @@ include '../../includes/header.php';
         <div class="form-group">
             <label>Kode MK</label>
             <input type="text" class="form-control" value="<?= htmlspecialchars($mk['kode_mk']) ?>" readonly>
-            <small style="color: #64748b;">Kode MK tidak dapat diubah</small>
         </div>
         
         <div class="form-group">
             <label>Nama Mata Kuliah</label>
             <input type="text" class="form-control" value="<?= htmlspecialchars($mk['nama_mk']) ?>" readonly>
-            <small style="color: #64748b;">Nama MK tidak dapat diubah</small>
         </div>
         
         <div class="form-group">
@@ -66,19 +62,12 @@ include '../../includes/header.php';
             <label>Dosen Pengajar</label>
             <select name="dosen_id" class="form-control">
                 <option value="">-- Pilih Dosen --</option>
-                <?php if(mysqli_num_rows($dosen_list) > 0): ?>
-                    <?php while($d = mysqli_fetch_assoc($dosen_list)): ?>
-                        <option value="<?= $d['id'] ?>" <?= ($mk['dosen_id'] == $d['id']) ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($d['nama_lengkap']) ?>
-                        </option>
-                    <?php endwhile; ?>
-                <?php else: ?>
-                    <option value="" disabled>-- Belum ada data dosen --</option>
-                <?php endif; ?>
+                <?php while($d = mysqli_fetch_assoc($dosen_list)): ?>
+                    <option value="<?= $d['id'] ?>" <?= ($mk['dosen_id'] == $d['id']) ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($d['nama_lengkap']) ?>
+                    </option>
+                <?php endwhile; ?>
             </select>
-            <?php if(mysqli_num_rows($dosen_list) == 0): ?>
-                <small style="color: #dc2626;">⚠️ Belum ada data dosen. Silakan tambah dosen terlebih dahulu.</small>
-            <?php endif; ?>
         </div>
         
         <div class="form-group">
@@ -87,17 +76,11 @@ include '../../includes/header.php';
         </div>
         
         <div class="form-group">
-            <label>
-                <input type="checkbox" name="is_latihan" <?= $mk['is_latihan'] ? 'checked' : '' ?>> 
-                Mode Latihan (tidak dinilai)
-            </label>
+            <label><input type="checkbox" name="is_latihan" <?= $mk['is_latihan'] ? 'checked' : '' ?>> Mode Latihan (tidak dinilai)</label>
         </div>
         
-        <div style="display: flex; gap: 10px; margin-top: 20px;">
-            <button type="submit" name="update" class="btn-primary">Update</button>
-            <a href="index.php" class="btn-outline">Batal</a>
-        </div>
+        <button type="submit" name="update" class="btn-primary">Update</button>
     </form>
 </div>
 
-<?php include '../../includes/footer.php'; ?>
+<?php include BASE_PATH . '/includes/footer.php'; ?>

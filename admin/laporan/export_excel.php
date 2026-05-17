@@ -1,12 +1,12 @@
 <?php
 session_start();
-include '../../config/database.php';
+include __DIR__ . '/../config/config.php';
+include BASE_PATH . '/config/database.php';
 
 if ($_SESSION['role'] != 'admin') {
     die("Akses ditolak!");
 }
 
-// Filter yang sama
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, trim($_GET['search'])) : '';
 $filter_kelas = isset($_GET['kelas_id']) ? (int)$_GET['kelas_id'] : 0;
 $filter_mk = isset($_GET['mk_induk_id']) ? (int)$_GET['mk_induk_id'] : 0;
@@ -29,7 +29,11 @@ $query = "SELECT
           WHERE u.status = 'selesai'";
 
 if (!empty($search)) {
-    $query .= " AND (mhs.nim_nip LIKE '%$search%' OR mhs.nama_lengkap LIKE '%$search%')";
+    $query .= " AND (mhs.nim_nip LIKE '%$search%' 
+                    OR mhs.nama_lengkap LIKE '%$search%' 
+                    OR mki.kode_mk LIKE '%$search%'
+                    OR mki.nama_mk LIKE '%$search%'
+                    OR k.nama_kelas LIKE '%$search%')";
 }
 if ($filter_kelas > 0) {
     $query .= " AND k.id = $filter_kelas";
@@ -41,21 +45,11 @@ $query .= " ORDER BY u.selesai_ujian DESC";
 
 $result = mysqli_query($conn, $query);
 
-// Header Excel
 header("Content-Type: application/vnd.ms-excel");
 header("Content-Disposition: attachment; filename=laporan_nilai_" . date('Y-m-d') . ".xls");
 
 echo "<table border='1'>";
-echo "<tr>
-        <th>No</th>
-        <th>NIM</th>
-        <th>Nama Mahasiswa</th>
-        <th>Kelas</th>
-        <th>Mata Kuliah</th>
-        <th>Nilai</th>
-        <th>Pindah Tab</th>
-        <th>Tanggal Ujian</th>
-      </tr>";
+echo "<tr><th>No</th><th>NIM</th><th>Nama Mahasiswa</th><th>Kelas</th><th>Mata Kuliah</th><th>Nilai</th><th>Pindah Tab</th><th>Tanggal Ujian</th></tr>";
 
 $no = 1;
 while($row = mysqli_fetch_assoc($result)) {

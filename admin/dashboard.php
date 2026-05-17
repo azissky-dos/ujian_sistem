@@ -1,10 +1,9 @@
 <?php
-// Gunakan require_once untuk mencegah include berulang
-require_once __DIR__ . '/../config/config.php';
-require_once BASE_PATH . '/includes/cek_login.php';
-require_once BASE_PATH . '/config/database.php';
+session_start();
+include __DIR__ . '/../config/config.php';
+include BASE_PATH . '/includes/cek_login.php';
+include BASE_PATH . '/config/database.php';
 
-// Cek role
 if ($_SESSION['role'] != 'admin') {
     die("Akses ditolak!");
 }
@@ -16,7 +15,7 @@ $total_kelas = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total 
 $total_mk = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM mata_kuliah"))['total'];
 $total_soal = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM soal"))['total'];
 
-require_once BASE_PATH . '/includes/header.php';
+include BASE_PATH . '/includes/header.php';
 ?>
 
 <div class="page-header">
@@ -30,45 +29,35 @@ require_once BASE_PATH . '/includes/header.php';
             <h3><?= $total_admin_dosen ?></h3>
             <p>Admin & Dosen</p>
         </div>
-        <div class="stat-icon">
-            <i class="fas fa-users"></i>
-        </div>
+        <div class="stat-icon"><i class="fas fa-users"></i></div>
     </div>
     <div class="stat-card">
         <div class="stat-info">
             <h3><?= $total_mahasiswa ?></h3>
             <p>Mahasiswa</p>
         </div>
-        <div class="stat-icon">
-            <i class="fas fa-user-graduate"></i>
-        </div>
+        <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
     </div>
     <div class="stat-card">
         <div class="stat-info">
             <h3><?= $total_kelas ?></h3>
             <p>Kelas</p>
         </div>
-        <div class="stat-icon">
-            <i class="fas fa-school"></i>
-        </div>
+        <div class="stat-icon"><i class="fas fa-school"></i></div>
     </div>
     <div class="stat-card">
         <div class="stat-info">
             <h3><?= $total_mk ?></h3>
             <p>Mata Kuliah</p>
         </div>
-        <div class="stat-icon">
-            <i class="fas fa-book"></i>
-        </div>
+        <div class="stat-icon"><i class="fas fa-book"></i></div>
     </div>
     <div class="stat-card">
         <div class="stat-info">
             <h3><?= $total_soal ?></h3>
             <p>Total Soal</p>
         </div>
-        <div class="stat-icon">
-            <i class="fas fa-question-circle"></i>
-        </div>
+        <div class="stat-icon"><i class="fas fa-question-circle"></i></div>
     </div>
 </div>
 
@@ -111,4 +100,4 @@ require_once BASE_PATH . '/includes/header.php';
     </div>
 </div>
 
-<?php require_once BASE_PATH . '/includes/footer.php'; ?>
+<?php include BASE_PATH . '/includes/footer.php'; ?>

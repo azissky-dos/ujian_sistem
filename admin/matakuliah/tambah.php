@@ -1,21 +1,19 @@
 <?php
 session_start();
-include '../../includes/cek_login.php';
-include '../../config/database.php';
+include __DIR__ . '/../config/config.php';
+include BASE_PATH . '/includes/cek_login.php';
+include BASE_PATH . '/config/database.php';
 
 if ($_SESSION['role'] != 'admin') {
     die("Akses ditolak!");
 }
 
-// Ambil daftar Master MK
 $master_mk_list = mysqli_query($conn, "SELECT id, kode_mk, nama_mk FROM mata_kuliah_induk ORDER BY kode_mk");
-
-// Ambil daftar kelas dengan informasi dosen
 $kelas_list = mysqli_query($conn, "
     SELECT k.id, k.nama_kelas, u.nama_lengkap as dosen_nama, u.id as dosen_id
     FROM kelas k 
     LEFT JOIN users u ON k.dosen_id = u.id 
-    ORDER BY k.nama_kelas, u.nama_lengkap
+    ORDER BY k.nama_kelas
 ");
 
 if (isset($_POST['simpan'])) {
@@ -25,7 +23,6 @@ if (isset($_POST['simpan'])) {
     $durasi_ujian = $_POST['durasi_ujian'];
     $is_latihan = isset($_POST['is_latihan']) ? 1 : 0;
     
-    // Ambil kode_mk dan nama_mk dari Master MK
     $master = mysqli_fetch_assoc(mysqli_query($conn, "SELECT kode_mk, nama_mk FROM mata_kuliah_induk WHERE id=$master_mk_id"));
     $kode_mk = $master['kode_mk'];
     $nama_mk = $master['nama_mk'];
@@ -33,16 +30,16 @@ if (isset($_POST['simpan'])) {
     $query = "INSERT INTO mata_kuliah (kode_mk, nama_mk, kelas_id, dosen_id, durasi_ujian, is_latihan, mk_induk_id) 
               VALUES ('$kode_mk', '$nama_mk', $kelas_id, " . ($dosen_id ? $dosen_id : 'NULL') . ", $durasi_ujian, $is_latihan, $master_mk_id)";
     mysqli_query($conn, $query);
-    header('Location: index.php');
+    header('Location: ' . BASE_URL . '/admin/matakuliah/index.php');
     exit();
 }
 
-include '../../includes/header.php';
+include BASE_PATH . '/includes/header.php';
 ?>
 
 <div class="page-header">
     <h1 class="page-title">Tambah Mata Kuliah ke Kelas</h1>
-    <a href="index.php" class="btn-outline">← Kembali</a>
+    <a href="<?= BASE_URL ?>/admin/matakuliah/index.php" class="btn-outline">← Kembali</a>
 </div>
 
 <div class="card-modern" style="max-width:550px">
@@ -52,9 +49,7 @@ include '../../includes/header.php';
             <select name="master_mk_id" class="form-control" required>
                 <option value="">-- Pilih MK Induk --</option>
                 <?php while($mm = mysqli_fetch_assoc($master_mk_list)): ?>
-                    <option value="<?= $mm['id'] ?>">
-                        <?= htmlspecialchars($mm['kode_mk']) ?> - <?= htmlspecialchars($mm['nama_mk']) ?>
-                    </option>
+                    <option value="<?= $mm['id'] ?>"><?= htmlspecialchars($mm['kode_mk']) ?> - <?= htmlspecialchars($mm['nama_mk']) ?></option>
                 <?php endwhile; ?>
             </select>
         </div>
@@ -69,7 +64,6 @@ include '../../includes/header.php';
                     </option>
                 <?php endwhile; ?>
             </select>
-            <small style="color: #64748b;">Dosen akan otomatis terisi berdasarkan kelas yang dipilih</small>
         </div>
         
         <div class="form-group">
@@ -84,9 +78,7 @@ include '../../includes/header.php';
         </div>
         
         <div class="form-group">
-            <label>
-                <input type="checkbox" name="is_latihan"> Mode Latihan (tidak dinilai)
-            </label>
+            <label><input type="checkbox" name="is_latihan"> Mode Latihan (tidak dinilai)</label>
         </div>
         
         <button type="submit" name="simpan" class="btn-primary">Simpan</button>
@@ -94,15 +86,13 @@ include '../../includes/header.php';
 </div>
 
 <script>
-// Saat kelas dipilih, otomatis isi dosen
 document.getElementById('kelas_id').addEventListener('change', function() {
     var selectedOption = this.options[this.selectedIndex];
     var dosenId = selectedOption.getAttribute('data-dosen-id');
     var dosenNama = selectedOption.getAttribute('data-dosen-nama');
-    
     document.getElementById('dosen_id').value = dosenId || '';
     document.getElementById('dosen_nama_display').value = dosenNama || '-';
 });
 </script>
 
-<?php include '../../includes/footer.php'; ?>
+<?php include BASE_PATH . '/includes/footer.php'; ?>

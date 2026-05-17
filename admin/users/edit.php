@@ -1,7 +1,8 @@
 <?php
 session_start();
-include '../../includes/cek_login.php';
-include '../../config/database.php';
+include __DIR__ . '/../config/config.php';
+include BASE_PATH . '/includes/cek_login.php';
+include BASE_PATH . '/config/database.php';
 
 if ($_SESSION['role'] != 'admin') {
     die("Akses ditolak!");
@@ -11,7 +12,7 @@ $id = $_GET['id'];
 $user = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id = $id"));
 
 if ($user['role'] == 'mahasiswa') {
-    header('Location: index.php');
+    header('Location: ' . BASE_URL . '/admin/users/index.php');
     exit();
 }
 
@@ -28,16 +29,16 @@ if (isset($_POST['update'])) {
         $query = "UPDATE users SET nama_lengkap='$nama', email='$email', nim_nip='$nip', role='$role' WHERE id=$id";
     }
     mysqli_query($conn, $query);
-    header('Location: index.php');
+    header('Location: ' . BASE_URL . '/admin/users/index.php');
     exit();
 }
 
-include '../../includes/header.php';
+include BASE_PATH . '/includes/header.php';
 ?>
 
 <div class="page-header">
     <h1 class="page-title">Edit User: <?= $user['username'] ?></h1>
-    <a href="index.php" class="btn-outline">← Kembali</a>
+    <a href="<?= BASE_URL ?>/admin/users/index.php" class="btn-outline">← Kembali</a>
 </div>
 
 <div class="card-modern" style="max-width: 500px;">
@@ -73,4 +74,4 @@ include '../../includes/header.php';
     </form>
 </div>
 
-<?php include '../../includes/footer.php'; ?>
+<?php include BASE_PATH . '/includes/footer.php'; ?>

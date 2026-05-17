@@ -1,13 +1,14 @@
 <?php
 session_start();
-include '../../includes/cek_login.php';
-include '../../config/database.php';
+include __DIR__ . '/../config/config.php';
+include BASE_PATH . '/includes/cek_login.php';
+include BASE_PATH . '/config/database.php';
 
 if ($_SESSION['role'] != 'admin') {
     die("Akses ditolak!");
 }
 
-$backup_dir = '../../backup/';
+$backup_dir = BASE_PATH . '/backup/';
 $success = '';
 $error = '';
 
@@ -15,9 +16,6 @@ if (!is_dir($backup_dir)) {
     mkdir($backup_dir, 0777, true);
 }
 
-// ======================================================
-// FUNGSI BACKUP DENGAN PHP NATIVE
-// ======================================================
 function backupDatabase($conn, $backup_dir) {
     $tables = array();
     $result = mysqli_query($conn, "SHOW TABLES");
@@ -29,11 +27,8 @@ function backupDatabase($conn, $backup_dir) {
     $filepath = $backup_dir . $filename;
     $file = fopen($filepath, 'w');
     
-    if (!$file) {
-        return false;
-    }
+    if (!$file) return false;
     
-    // Header SQL
     fwrite($file, "-- ======================================================\n");
     fwrite($file, "-- BACKUP DATABASE: ujian_system\n");
     fwrite($file, "-- Tanggal: " . date('Y-m-d H:i:s') . "\n");
@@ -41,21 +36,16 @@ function backupDatabase($conn, $backup_dir) {
     fwrite($file, "SET FOREIGN_KEY_CHECKS=0;\n\n");
     
     foreach ($tables as $table) {
-        // Drop table
         fwrite($file, "DROP TABLE IF EXISTS `$table`;\n");
-        
-        // Create table
         $create = mysqli_query($conn, "SHOW CREATE TABLE $table");
         $row = mysqli_fetch_row($create);
         fwrite($file, $row[1] . ";\n\n");
         
-        // Insert data
         $data = mysqli_query($conn, "SELECT * FROM $table");
         $num_fields = mysqli_num_fields($data);
         
         if (mysqli_num_rows($data) > 0) {
             fwrite($file, "INSERT INTO `$table` VALUES ");
-            
             $row_count = 0;
             while ($row_data = mysqli_fetch_row($data)) {
                 $row_count++;
@@ -82,13 +72,9 @@ function backupDatabase($conn, $backup_dir) {
     
     fwrite($file, "SET FOREIGN_KEY_CHECKS=1;\n");
     fclose($file);
-    
     return $filename;
 }
 
-// ======================================================
-// PROSES BACKUP
-// ======================================================
 if (isset($_POST['backup'])) {
     $result = backupDatabase($conn, $backup_dir);
     if ($result) {
@@ -98,17 +84,12 @@ if (isset($_POST['backup'])) {
     }
 }
 
-// ======================================================
-// PROSES RESTORE
-// ======================================================
 if (isset($_POST['restore']) && isset($_POST['backup_file'])) {
     $backup_file = $_POST['backup_file'];
     $filepath = $backup_dir . $backup_file;
     
     if (file_exists($filepath) && filesize($filepath) > 100) {
         $sql_content = file_get_contents($filepath);
-        
-        // Jalankan query
         $queries = explode(";\n", $sql_content);
         $error_count = 0;
         
@@ -131,9 +112,6 @@ if (isset($_POST['restore']) && isset($_POST['backup_file'])) {
     }
 }
 
-// ======================================================
-// PROSES DOWNLOAD & HAPUS
-// ======================================================
 if (isset($_GET['download'])) {
     $file = $backup_dir . $_GET['download'];
     if (file_exists($file)) {
@@ -153,17 +131,16 @@ if (isset($_GET['delete'])) {
     }
 }
 
-// Ambil daftar file backup (hanya file yang valid, minimal 1KB)
 $backup_files = glob($backup_dir . '*.sql');
 $valid_backups = array();
 foreach ($backup_files as $file) {
-    if (filesize($file) > 1024) { // minimal 1KB
+    if (filesize($file) > 1024) {
         $valid_backups[] = $file;
     }
 }
 rsort($valid_backups);
 
-include '../../includes/header.php';
+include BASE_PATH . '/includes/header.php';
 ?>
 
 <div class="page-header">
@@ -174,13 +151,11 @@ include '../../includes/header.php';
 <?php if($success): ?>
     <div class="alert success"><?= $success ?></div>
 <?php endif; ?>
-
 <?php if($error): ?>
     <div class="alert error"><?= $error ?></div>
 <?php endif; ?>
 
 <div class="dashboard-grid">
-    <!-- Card Backup -->
     <div class="card-modern">
         <i class="fas fa-database" style="font-size: 48px; color: #4f46e5;"></i>
         <h3 style="margin: 16px 0 8px 0;">Backup Database</h3>
@@ -192,7 +167,6 @@ include '../../includes/header.php';
         </form>
     </div>
     
-    <!-- Card Restore -->
     <div class="card-modern">
         <i class="fas fa-undo-alt" style="font-size: 48px; color: #4f46e5;"></i>
         <h3 style="margin: 16px 0 8px 0;">Restore Database</h3>
@@ -211,18 +185,10 @@ include '../../includes/header.php';
     </div>
 </div>
 
-<!-- Daftar File Backup -->
 <div class="card-modern" style="margin-top: 24px;">
     <h3><i class="fas fa-file-archive"></i> Daftar File Backup (Valid)</h3>
     <table class="table-modern">
-        <thead>
-            <tr>
-                <th>Nama File</th>
-                <th>Ukuran</th>
-                <th>Tanggal</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
+        <thead><tr><th>Nama File</th><th>Ukuran</th><th>Tanggal</th><th>Aksi</th></tr></thead>
         <tbody>
             <?php if(count($valid_backups) > 0): ?>
                 <?php foreach($valid_backups as $file): ?>
@@ -237,23 +203,10 @@ include '../../includes/header.php';
                 </tr>
                 <?php endforeach; ?>
             <?php else: ?>
-                <tr>
-                    <td colspan="4" style="text-align: center;">Belum ada file backup yang valid. Silakan backup terlebih dahulu.</td>
-                </tr>
+                <tr><td colspan="4" style="text-align: center;">Belum ada file backup yang valid. Silakan backup terlebih dahulu.</td></tr>
             <?php endif; ?>
         </tbody>
     </table>
 </div>
 
-<div class="alert info" style="margin-top: 16px;">
-    <i class="fas fa-info-circle"></i> 
-    <strong>Catatan:</strong> 
-    <ul style="margin-left: 20px; margin-top: 8px;">
-        <li>Backup menggunakan PHP native (tidak perlu mysqldump)</li>
-        <li>File backup disimpan di folder <strong>/backup/</strong></li>
-        <li>Restore akan MENIMPA data saat ini, pastikan Anda sudah backup sebelum restore</li>
-        <li>Hanya file backup dengan ukuran di atas 1KB yang ditampilkan</li>
-    </ul>
-</div>
-
-<?php include '../../includes/footer.php'; ?>
+<?php include BASE_PATH . '/includes/footer.php'; ?>

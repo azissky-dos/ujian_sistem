@@ -1,7 +1,8 @@
 <?php
 session_start();
-include '../../includes/cek_login.php';
-include '../../config/database.php';
+include __DIR__ . '/../config/config.php';
+include BASE_PATH . '/includes/cek_login.php';
+include BASE_PATH . '/config/database.php';
 
 if ($_SESSION['role'] != 'admin') {
     die("Akses ditolak!");
@@ -16,7 +17,7 @@ if (isset($_POST['reset'])) {
 
 $users = mysqli_query($conn, "SELECT id, username, nama_lengkap, role, nim_nip FROM users ORDER BY role, nama_lengkap");
 
-include '../../includes/header.php';
+include BASE_PATH . '/includes/header.php';
 ?>
 
 <div class="page-header">
@@ -31,24 +32,14 @@ include '../../includes/header.php';
 <div class="card-modern">
     <table class="table-modern">
         <thead>
-            <tr>
-                <th>Username</th>
-                <th>Nama Lengkap</th>
-                <th>Role</th>
-                <th>NIM/NIP</th>
-                <th>Aksi</th>
-            </tr>
+            <tr><th>Username</th><th>Nama Lengkap</th><th>Role</th><th>NIM/NIP</th><th>Aksi</th></tr>
         </thead>
         <tbody>
             <?php while($user = mysqli_fetch_assoc($users)): ?>
             <tr>
                 <td><?= htmlspecialchars($user['username']) ?></td>
                 <td><?= htmlspecialchars($user['nama_lengkap']) ?></td>
-                <td>
-                    <span class="badge <?= $user['role']=='admin'?'badge-danger':($user['role']=='dosen'?'badge-warning':'badge-success') ?>">
-                        <?= $user['role'] ?>
-                    </span>
-                </td>
+                <td><span class="badge <?= $user['role']=='admin'?'badge-danger':($user['role']=='dosen'?'badge-warning':'badge-success') ?>"><?= $user['role'] ?></span></td>
                 <td><?= htmlspecialchars($user['nim_nip'] ?? '-') ?></td>
                 <td>
                     <form method="POST" onsubmit="return confirm('Reset password <?= $user['username'] ?> ke 123456?')">
@@ -60,9 +51,6 @@ include '../../includes/header.php';
             <?php endwhile; ?>
         </tbody>
     </table>
-    <div class="alert info" style="margin-top:16px">
-        <i class="fas fa-info-circle"></i> Password akan direset menjadi <strong>123456</strong>. User bisa mengganti sendiri setelah login.
-    </div>
 </div>
 
-<?php include '../../includes/footer.php'; ?>
+<?php include BASE_PATH . '/includes/footer.php'; ?>

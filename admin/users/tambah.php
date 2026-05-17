@@ -1,7 +1,8 @@
 <?php
 session_start();
-include '../../includes/cek_login.php';
-include '../../config/database.php';
+include __DIR__ . '/../config/config.php';
+include BASE_PATH . '/includes/cek_login.php';
+include BASE_PATH . '/config/database.php';
 
 if ($_SESSION['role'] != 'admin') {
     die("Akses ditolak!");
@@ -18,16 +19,16 @@ if (isset($_POST['simpan'])) {
     $query = "INSERT INTO users (username, password, role, nama_lengkap, email, nim_nip) 
               VALUES ('$username', '$password', '$role', '$nama', '$email', '$nip')";
     mysqli_query($conn, $query);
-    header('Location: index.php');
+    header('Location: ' . BASE_URL . '/admin/users/index.php');
     exit();
 }
 
-include '../../includes/header.php';
+include BASE_PATH . '/includes/header.php';
 ?>
 
 <div class="page-header">
     <h1 class="page-title">Tambah User</h1>
-    <a href="index.php" class="btn-outline">← Kembali</a>
+    <a href="<?= BASE_URL ?>/admin/users/index.php" class="btn-outline">← Kembali</a>
 </div>
 
 <div class="card-modern" style="max-width: 500px;">
@@ -64,4 +65,4 @@ include '../../includes/header.php';
     </form>
 </div>
 
-<?php include '../../includes/footer.php'; ?>
+<?php include BASE_PATH . '/includes/footer.php'; ?>

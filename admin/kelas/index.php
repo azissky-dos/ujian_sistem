@@ -1,24 +1,22 @@
 <?php
 session_start();
-include '../../includes/cek_login.php';
-include '../../config/database.php';
+include __DIR__ . '/../config/config.php';
+include BASE_PATH . '/includes/cek_login.php';
+include BASE_PATH . '/config/database.php';
 
 if ($_SESSION['role'] != 'admin') {
     die("Akses ditolak!");
 }
 
-// Search
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, trim($_GET['search'])) : '';
 
-// Handle hapus
 if (isset($_GET['hapus'])) {
     $id = (int)$_GET['hapus'];
     mysqli_query($conn, "DELETE FROM kelas WHERE id = $id");
-    header('Location: index.php');
+    header('Location: ' . BASE_URL . '/admin/kelas/index.php');
     exit();
 }
 
-// Query dengan search
 $query = "SELECT k.*, u.nama_lengkap as dosen_nama 
           FROM kelas k 
           LEFT JOIN users u ON k.dosen_id = u.id";
@@ -31,7 +29,7 @@ $query .= " ORDER BY k.nama_kelas";
 
 $kelas = mysqli_query($conn, $query);
 
-include '../../includes/header.php';
+include BASE_PATH . '/includes/header.php';
 ?>
 
 <div class="page-header">
@@ -42,10 +40,10 @@ include '../../includes/header.php';
                    value="<?= htmlspecialchars($search) ?>" style="width: 300px;">
             <button type="submit" class="btn-primary"><i class="fas fa-search"></i> Cari</button>
             <?php if(!empty($search)): ?>
-                <a href="index.php" class="btn-outline"><i class="fas fa-times"></i> Reset</a>
+                <a href="<?= BASE_URL ?>/admin/kelas/index.php" class="btn-outline"><i class="fas fa-times"></i> Reset</a>
             <?php endif; ?>
         </form>
-        <a href="tambah.php" class="btn-primary"><i class="fas fa-plus"></i> Tambah Kelas</a>
+        <a href="<?= BASE_URL ?>/admin/kelas/tambah.php" class="btn-primary"><i class="fas fa-plus"></i> Tambah Kelas</a>
     </div>
 </div>
 
@@ -56,33 +54,26 @@ include '../../includes/header.php';
 <div class="card-modern">
     <table class="table-modern">
         <thead>
-            <tr>
-                <th>Nama Kelas</th>
-                <th>Tahun Ajaran</th>
-                <th>Dosen Pengajar</th>
-                <th>Aksi</th>
-            </tr>
+            <tr><th>Nama Kelas</th><th>Tahun Ajaran</th><th>Dosen Pengajar</th><th>Aksi</th></tr>
         </thead>
         <tbody>
             <?php if(mysqli_num_rows($kelas) > 0): ?>
                 <?php while($k = mysqli_fetch_assoc($kelas)): ?>
                 <tr>
-                    <td><?= htmlspecialchars($k['nama_kelas']) ?> </td>
-                    <td><?= htmlspecialchars($k['tahun_ajaran']) ?> </td>
-                    <td><?= htmlspecialchars($k['dosen_nama'] ?? '-') ?> </td>
+                    <td><?= htmlspecialchars($k['nama_kelas']) ?></td>
+                    <td><?= htmlspecialchars($k['tahun_ajaran']) ?></td>
+                    <td><?= htmlspecialchars($k['dosen_nama'] ?? '-') ?></td>
                     <td>
-                        <a href="edit.php?id=<?= $k['id'] ?>" class="btn-primary" style="padding:4px 10px;font-size:12px;">Edit</a>
-                        <a href="?hapus=<?= $k['id'] ?>" class="btn-danger" style="padding:4px 10px;font-size:12px;" onclick="return confirm('Yakin hapus kelas ini? Semua data MK akan ikut terhapus!')">Hapus</a>
-                     ﹏
+                        <a href="<?= BASE_URL ?>/admin/kelas/edit.php?id=<?= $k['id'] ?>" class="btn-primary" style="padding:4px 10px;font-size:12px;">Edit</a>
+                        <a href="?hapus=<?= $k['id'] ?>" class="btn-danger" style="padding:4px 10px;font-size:12px;" onclick="return confirm('Yakin hapus kelas ini?')">Hapus</a>
+                    </td>
                 </tr>
                 <?php endwhile; ?>
             <?php else: ?>
-                <tr>
-                    <td colspan="4" style="text-align:center">Belum ada data kelas ﹏
-                </tr>
+                <tr><td colspan="4" style="text-align:center">Belum ada data kelas</td></tr>
             <?php endif; ?>
         </tbody>
     </table>
 </div>
 
-<?php include '../../includes/footer.php'; ?>
+<?php include BASE_PATH . '/includes/footer.php'; ?>
