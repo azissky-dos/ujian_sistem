@@ -37,7 +37,7 @@ if (isset($_POST['login'])) {
 // Cek jika sudah login
 if (isset($_SESSION['user_id'])) {
     if ($_SESSION['role'] == 'admin') {
-        header('Location: ' . BASE_URL . '/admin/dashboard.php');
+        header('Location: admin/dashboard.php');
     } elseif ($_SESSION['role'] == 'dosen') {
         header('Location: ' . BASE_URL . '/dosen/dashboard.php');
     } elseif ($_SESSION['role'] == 'mahasiswa') {
