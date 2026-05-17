@@ -1,11 +1,25 @@
 <?php
 session_start();
-require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../config/database.php'];
 require_once __DIR__ . '/../../includes/fungsi.php';
 
+// Set header JSON
+header('Content-Type: application/json');
+
 $input = json_decode(file_get_contents('php://input'), true);
+
+if (!$input) {
+    echo json_encode(['status' => 'error', 'message' => 'Data tidak valid']);
+    exit();
+}
+
 $ujian_id = isset($input['ujian_id']) ? (int)$input['ujian_id'] : 0;
 $jawaban = isset($input['jawaban']) ? $input['jawaban'] : [];
+
+if ($ujian_id == 0 || empty($jawaban)) {
+    echo json_encode(['status' => 'error', 'message' => 'Data tidak lengkap']);
+    exit();
+}
 
 $total_skor = 0;
 $total_bobot = 0;

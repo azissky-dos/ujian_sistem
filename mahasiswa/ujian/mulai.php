@@ -40,15 +40,17 @@ if ($ujian_aktif) {
     $soal_ids = json_decode($ujian_aktif['soal_yang_dikeluarkan'], true);
     $mulai = $ujian_aktif['mulai_ujian'];
 } else {
-    // Ambil soal dari MK Induk
-    $soal_ids = ambilSoalAcakInduk($mk_induk_id, $conn, 5);
+    // Ambil soal langsung dari database
+    $query_soal = "SELECT id FROM soal WHERE mk_induk_id = $mk_induk_id ORDER BY RAND() LIMIT 5";
+    $result_soal = mysqli_query($conn, $query_soal);
     
-    // DEBUG: Cek apakah soal tersedia
-    if (empty($soal_ids)) {
-        $query_cek = "SELECT COUNT(*) as total FROM soal WHERE mk_induk_id = $mk_induk_id";
-        $cek_result = mysqli_query($conn, $query_cek);
-        $cek_row = mysqli_fetch_assoc($cek_result);
-        die("Soal belum tersedia! Total soal untuk MK ini: " . ($cek_row['total'] ?? 0) . ". Minimal 5 soal.");
+    $soal_ids = [];
+    while ($row = mysqli_fetch_assoc($result_soal)) {
+        $soal_ids[] = $row['id'];
+    }
+    
+    if (count($soal_ids) < 5) {
+        die("Soal belum mencukupi. Tersedia " . count($soal_ids) . " soal, minimal 5 soal.");
     }
     
     $soal_baru_json = mysqli_real_escape_string($conn, json_encode($soal_ids));
@@ -56,7 +58,7 @@ if ($ujian_aktif) {
               VALUES ($enrollment_id, $mk_id, NOW(), 'sedang', '$soal_baru_json')";
     
     if (!mysqli_query($conn, $query)) {
-        die("Error saat memulai ujian: " . mysqli_error($conn));
+        die("Error: " . mysqli_error($conn));
     }
     
     $ujian_id = mysqli_insert_id($conn);
@@ -67,48 +69,52 @@ $mulai_time = strtotime($mulai);
 $waktu_habis = $mulai_time + ($durasi_ujian * 60);
 $sisa_detik = max(0, $waktu_habis - time());
 
+// Ambil data soal untuk ditampilkan
+$soal_data = [];
+foreach ($soal_ids as $soal_id) {
+    $row = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM soal WHERE id=$soal_id"));
+    if ($row) $soal_data[] = $row;
+}
+
 require_once __DIR__ . '/../../includes/header.php';
 ?>
 
 <div class="ujian-header">
     <span>⏰ Waktu tersisa: <span id="timer" class="timer-box"><?= floor($sisa_detik/60) . ":" . str_pad($sisa_detik%60,2,'0',STR_PAD_LEFT) ?></span></span>
-    <span class="warning-box"><i class="fas fa-exclamation-triangle"></i> Jangan pindah tab! Peringatan 3x = ujian dihentikan</span>
+    <span class="warning-box"><i class="fas fa-exclamation-triangle"></i> Jangan pindah tab!</span>
 </div>
 
 <form id="formUjian">
     <div id="soal_container">
-        <?php $no = 1; foreach($soal_ids as $soal_id):
-            $soal = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM soal WHERE id=$soal_id"));
-            if (!$soal) continue;
-        ?>
-        <div class="soal-card" data-soal-id="<?= $soal_id ?>">
+        <?php $no = 1; foreach($soal_data as $soal): ?>
+        <div class="soal-card">
             <div><span class="soal-number"><?= $no++ ?></span> <strong><?= htmlspecialchars($soal['teks_soal']) ?></strong></div>
             
             <?php if($soal['tipe_soal'] == 'pg'): ?>
                 <div class="radio-group" style="margin-top: 12px; margin-left: 20px;">
                     <label style="display: block; margin-bottom: 8px;">
-                        <input type="radio" name="jawaban_<?= $soal_id ?>" value="A" class="jawaban-item" data-soal-id="<?= $soal_id ?>"> 
+                        <input type="radio" name="jawaban_<?= $soal['id'] ?>" value="A" class="jawaban-item" data-soal-id="<?= $soal['id'] ?>"> 
                         A. <?= htmlspecialchars($soal['pilihan_A']) ?>
                     </label>
                     <label style="display: block; margin-bottom: 8px;">
-                        <input type="radio" name="jawaban_<?= $soal_id ?>" value="B" class="jawaban-item" data-soal-id="<?= $soal_id ?>"> 
+                        <input type="radio" name="jawaban_<?= $soal['id'] ?>" value="B" class="jawaban-item" data-soal-id="<?= $soal['id'] ?>"> 
                         B. <?= htmlspecialchars($soal['pilihan_B']) ?>
                     </label>
                     <label style="display: block; margin-bottom: 8px;">
-                        <input type="radio" name="jawaban_<?= $soal_id ?>" value="C" class="jawaban-item" data-soal-id="<?= $soal_id ?>"> 
+                        <input type="radio" name="jawaban_<?= $soal['id'] ?>" value="C" class="jawaban-item" data-soal-id="<?= $soal['id'] ?>"> 
                         C. <?= htmlspecialchars($soal['pilihan_C']) ?>
                     </label>
                     <label style="display: block; margin-bottom: 8px;">
-                        <input type="radio" name="jawaban_<?= $soal_id ?>" value="D" class="jawaban-item" data-soal-id="<?= $soal_id ?>"> 
+                        <input type="radio" name="jawaban_<?= $soal['id'] ?>" value="D" class="jawaban-item" data-soal-id="<?= $soal['id'] ?>"> 
                         D. <?= htmlspecialchars($soal['pilihan_D']) ?>
                     </label>
                     <label style="display: block; margin-bottom: 8px;">
-                        <input type="radio" name="jawaban_<?= $soal_id ?>" value="E" class="jawaban-item" data-soal-id="<?= $soal_id ?>"> 
+                        <input type="radio" name="jawaban_<?= $soal['id'] ?>" value="E" class="jawaban-item" data-soal-id="<?= $soal['id'] ?>"> 
                         E. <?= htmlspecialchars($soal['pilihan_E']) ?>
                     </label>
                 </div>
             <?php else: ?>
-                <textarea class="jawaban-item form-control" data-soal-id="<?= $soal_id ?>" rows="3" style="margin-top:12px" placeholder="Tulis jawaban Anda di sini..."></textarea>
+                <textarea class="jawaban-item form-control" data-soal-id="<?= $soal['id'] ?>" rows="3" style="margin-top:12px" placeholder="Tulis jawaban Anda di sini..."></textarea>
             <?php endif; ?>
         </div>
         <?php endforeach; ?>
@@ -122,6 +128,7 @@ let ujianId = <?= $ujian_id ?>;
 let timerInterval;
 let isSubmitting = false;
 
+// Timer
 function updateTimer() {
     if (sisaDetik <= 0) {
         clearInterval(timerInterval);
@@ -139,6 +146,7 @@ function updateTimer() {
 }
 timerInterval = setInterval(updateTimer, 1000);
 
+// Kirim ujian
 function kirimUjian() {
     if (isSubmitting) return;
     isSubmitting = true;
@@ -162,24 +170,37 @@ function kirimUjian() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ujian_id: ujianId, jawaban: jawaban })
-    }).then(res => res.json()).then(data => {
+    })
+    .then(response => response.json())
+    .then(data => {
         if (data.status === 'success') {
             window.location.href = 'selesai.php?id=' + ujianId;
         } else {
-            alert('Terjadi kesalahan: ' + (data.message || 'Unknown error'));
+            alert('Error: ' + (data.message || 'Gagal mengirim ujian'));
             isSubmitting = false;
         }
-    }).catch(err => {
-        console.error('Error:', err);
-        alert('Terjadi kesalahan saat mengirim ujian.');
+    })
+    .catch(error => {
+        console.error('Fetch error:', error);
+        alert('Terjadi kesalahan koneksi: ' + error.message);
         isSubmitting = false;
     });
 }
 
+// Tombol kirim
 document.getElementById('btnKirim').addEventListener('click', function(e) {
     e.preventDefault();
     if (confirm('Apakah Anda yakin ingin mengirim ujian?')) {
         kirimUjian();
+    }
+});
+
+// Peringatan sebelum keluar
+window.addEventListener('beforeunload', function(e) {
+    if (sisaDetik > 0 && !isSubmitting) {
+        e.preventDefault();
+        e.returnValue = 'Ujian belum selesai! Yakin ingin keluar?';
+        return 'Ujian belum selesai! Yakin ingin keluar?';
     }
 });
 </script>
