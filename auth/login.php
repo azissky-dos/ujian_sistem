@@ -1,6 +1,26 @@
 <?php
+// auth/login.php
+// ======================================================
+// HALAMAN LOGIN
+// ======================================================
+
 session_start();
-require_once __DIR__ . '/../config/config.php';
+
+// Jika sudah login, redirect ke dashboard sesuai role
+if (isset($_SESSION['user_id'])) {
+    if ($_SESSION['role'] == 'admin') {
+        header('Location: ../admin/dashboard.php');
+        exit();
+    } elseif ($_SESSION['role'] == 'dosen') {
+        header('Location: ../dosen/dashboard.php');
+        exit();
+    } elseif ($_SESSION['role'] == 'mahasiswa') {
+        header('Location: ../mahasiswa/dashboard.php');
+        exit();
+    }
+}
+
+// Koneksi database
 require_once __DIR__ . '/../config/database.php';
 
 $error = '';
@@ -21,7 +41,7 @@ if (isset($_POST['login'])) {
         $_SESSION['role'] = $user['role'];
         $_SESSION['LAST_ACTIVITY'] = time();
         
-        // Redirect PAKAI PATH RELATIF (PASTI JALAN)
+        // Redirect sesuai role
         if ($user['role'] == 'admin') {
             header('Location: ../admin/dashboard.php');
         } elseif ($user['role'] == 'dosen') {
@@ -33,18 +53,6 @@ if (isset($_POST['login'])) {
     } else {
         $error = "Username atau password salah!";
     }
-}
-
-// Cek jika sudah login
-if (isset($_SESSION['user_id'])) {
-    if ($_SESSION['role'] == 'admin') {
-        header('Location: ../admin/dashboard.php');
-    } elseif ($_SESSION['role'] == 'dosen') {
-        header('Location: ../dosen/dashboard.php');
-    } elseif ($_SESSION['role'] == 'mahasiswa') {
-        header('Location: ../mahasiswa/dashboard.php');
-    }
-    exit();
 }
 ?>
 <!DOCTYPE html>
@@ -67,18 +75,14 @@ if (isset($_SESSION['user_id'])) {
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #1e293b; font-size: 14px; }
         .form-group label i { margin-right: 8px; color: #4f46e5; }
-        .form-control { width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 14px; font-size: 14px; transition: all 0.3s ease; font-family: 'Inter', sans-serif; }
+        .form-control { width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 14px; font-size: 14px; transition: all 0.3s ease; }
         .form-control:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
-        .btn-primary { background: linear-gradient(135deg, #6366f1, #4f46e5); border: none; padding: 12px 24px; border-radius: 12px; color: white; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 16px; width: 100%; }
+        .btn-primary { background: linear-gradient(135deg, #6366f1, #4f46e5); border: none; padding: 12px 24px; border-radius: 12px; color: white; font-weight: 600; cursor: pointer; font-size: 16px; width: 100%; }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(99,102,241,0.4); }
-        .btn-primary i { margin-right: 8px; }
         .alert { padding: 12px 16px; border-radius: 12px; margin-bottom: 20px; font-size: 14px; }
         .alert.error { background: #fee2e2; color: #dc2626; border-left: 4px solid #dc2626; }
-        .alert.error i { margin-right: 8px; }
         .auth-footer { text-align: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid #e2e8f0; }
-        .auth-footer p { color: #64748b; font-size: 14px; }
         .auth-footer a { color: #4f46e5; text-decoration: none; font-weight: 600; }
-        .auth-footer a:hover { text-decoration: underline; }
         .password-wrapper { position: relative; }
         .toggle-password { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #64748b; }
     </style>

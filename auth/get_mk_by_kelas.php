@@ -1,5 +1,9 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
+// auth/get_mk_by_kelas.php
+// ======================================================
+// AJAX: AMBIL DAFTAR MATA KULIAH BERDASARKAN KELAS
+// ======================================================
+
 require_once __DIR__ . '/../config/database.php';
 
 header('Content-Type: application/json');

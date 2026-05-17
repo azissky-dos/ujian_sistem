@@ -1,7 +1,10 @@
 <?php
-session_start();
-require_once __DIR__ . '/../config/config.php';
+// auth/logout.php
+// ======================================================
+// PROSES LOGOUT
+// ======================================================
 
+session_start();
 session_destroy();
 header('Location: login.php');
 exit();
