@@ -1,22 +1,16 @@
 <?php
 session_start();
+require_once __DIR__ . '/../../config/config.php';
 
-// Tentukan BASE_PATH secara manual (AMAN)
-$base_path = dirname(__DIR__, 2);  // naik 2 level dari admin/xxx/ ke root
-require_once $base_path . '/config/config.php';
-
-// Cek login
 if (!isset($_SESSION['user_id'])) {
     header('Location: ' . BASE_URL . '/auth/login.php');
     exit();
 }
 
-// Cek role
 if ($_SESSION['role'] != 'admin') {
     die("Akses ditolak!");
 }
 
-// Koneksi database
 require_once BASE_PATH . '/config/database.php';
 
 $id = $_GET['id'];
@@ -28,13 +22,12 @@ if (isset($_POST['update'])) {
     $tahun_ajaran = mysqli_real_escape_string($conn, $_POST['tahun_ajaran']);
     $dosen_id = $_POST['dosen_id'] ?: 'NULL';
     
-    $query = "UPDATE kelas SET nama_kelas='$nama_kelas', tahun_ajaran='$tahun_ajaran', dosen_id=$dosen_id WHERE id=$id";
-    mysqli_query($conn, $query);
+    mysqli_query($conn, "UPDATE kelas SET nama_kelas='$nama_kelas', tahun_ajaran='$tahun_ajaran', dosen_id=$dosen_id WHERE id=$id");
     header('Location: ' . BASE_URL . '/admin/kelas/index.php');
     exit();
 }
 
-include BASE_PATH . '/includes/header.php';
+require_once BASE_PATH . '/includes/header.php';
 ?>
 
 <div class="page-header">
@@ -44,22 +37,14 @@ include BASE_PATH . '/includes/header.php';
 
 <div class="card-modern" style="max-width:500px">
     <form method="POST">
+        <div class="form-group"><label>Nama Kelas</label><input type="text" name="nama_kelas" class="form-control" value="<?= htmlspecialchars($kelas['nama_kelas']) ?>" required></div>
+        <div class="form-group"><label>Tahun Ajaran</label><input type="text" name="tahun_ajaran" class="form-control" value="<?= htmlspecialchars($kelas['tahun_ajaran']) ?>" required></div>
         <div class="form-group">
-            <label>Nama Kelas</label>
-            <input type="text" name="nama_kelas" class="form-control" value="<?= htmlspecialchars($kelas['nama_kelas']) ?>" required>
-        </div>
-        <div class="form-group">
-            <label>Tahun Ajaran</label>
-            <input type="text" name="tahun_ajaran" class="form-control" value="<?= htmlspecialchars($kelas['tahun_ajaran']) ?>" required>
-        </div>
-        <div class="form-group">
-            <label>Dosen Pengajar</label>
+            <label>Dosen</label>
             <select name="dosen_id" class="form-control">
                 <option value="">-- Pilih Dosen --</option>
                 <?php while($d = mysqli_fetch_assoc($dosen_list)): ?>
-                    <option value="<?= $d['id'] ?>" <?= $kelas['dosen_id']==$d['id']?'selected':'' ?>>
-                        <?= htmlspecialchars($d['nama_lengkap']) ?>
-                    </option>
+                    <option value="<?= $d['id'] ?>" <?= $kelas['dosen_id']==$d['id']?'selected':'' ?>><?= htmlspecialchars($d['nama_lengkap']) ?></option>
                 <?php endwhile; ?>
             </select>
         </div>
@@ -67,4 +52,4 @@ include BASE_PATH . '/includes/header.php';
     </form>
 </div>
 
-<?php include BASE_PATH . '/includes/footer.php'; ?>
+<?php require_once BASE_PATH . '/includes/footer.php'; ?>

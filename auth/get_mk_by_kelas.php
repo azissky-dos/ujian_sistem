@@ -1,6 +1,6 @@
 <?php
-include __DIR__ . '/../config/config.php';
-include BASE_PATH . '/config/database.php';
+require_once __DIR__ . '/../config/config.php';
+require_once BASE_PATH . '/config/database.php';
 
 header('Content-Type: application/json');
 
@@ -11,13 +11,12 @@ if (!isset($_POST['kelas_id']) || empty($_POST['kelas_id'])) {
 
 $kelas_id = intval($_POST['kelas_id']);
 
-// Ambil MK Induk yang tersedia di kelas tersebut
 $query = "SELECT DISTINCT mki.id, mki.kode_mk, mki.nama_mk
           FROM mata_kuliah_induk mki
           JOIN mata_kuliah mk ON mk.mk_induk_id = mki.id
           WHERE mk.kelas_id = $kelas_id
           ORDER BY mki.kode_mk";
-          
+
 $result = mysqli_query($conn, $query);
 
 if (!$result) {

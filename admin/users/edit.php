@@ -1,22 +1,16 @@
 <?php
 session_start();
+require_once __DIR__ . '/../../config/config.php';
 
-// Tentukan BASE_PATH secara manual (AMAN)
-$base_path = dirname(__DIR__, 2);  // naik 2 level dari admin/xxx/ ke root
-require_once $base_path . '/config/config.php';
-
-// Cek login
 if (!isset($_SESSION['user_id'])) {
     header('Location: ' . BASE_URL . '/auth/login.php');
     exit();
 }
 
-// Cek role
 if ($_SESSION['role'] != 'admin') {
     die("Akses ditolak!");
 }
 
-// Koneksi database
 require_once BASE_PATH . '/config/database.php';
 
 $id = $_GET['id'];
@@ -35,16 +29,15 @@ if (isset($_POST['update'])) {
     
     if (!empty($_POST['password'])) {
         $password = md5($_POST['password']);
-        $query = "UPDATE users SET password='$password', nama_lengkap='$nama', email='$email', nim_nip='$nip', role='$role' WHERE id=$id";
+        mysqli_query($conn, "UPDATE users SET password='$password', nama_lengkap='$nama', email='$email', nim_nip='$nip', role='$role' WHERE id=$id");
     } else {
-        $query = "UPDATE users SET nama_lengkap='$nama', email='$email', nim_nip='$nip', role='$role' WHERE id=$id";
+        mysqli_query($conn, "UPDATE users SET nama_lengkap='$nama', email='$email', nim_nip='$nip', role='$role' WHERE id=$id");
     }
-    mysqli_query($conn, $query);
     header('Location: ' . BASE_URL . '/admin/users/index.php');
     exit();
 }
 
-include BASE_PATH . '/includes/header.php';
+require_once BASE_PATH . '/includes/header.php';
 ?>
 
 <div class="page-header">
@@ -52,28 +45,13 @@ include BASE_PATH . '/includes/header.php';
     <a href="<?= BASE_URL ?>/admin/users/index.php" class="btn-outline">← Kembali</a>
 </div>
 
-<div class="card-modern" style="max-width: 500px;">
+<div class="card-modern" style="max-width:500px">
     <form method="POST">
-        <div class="form-group">
-            <label>Username (tidak bisa diubah)</label>
-            <input type="text" value="<?= $user['username'] ?>" class="form-control" disabled>
-        </div>
-        <div class="form-group">
-            <label>Password (kosongkan jika tidak diubah)</label>
-            <input type="password" name="password" class="form-control">
-        </div>
-        <div class="form-group">
-            <label>Nama Lengkap</label>
-            <input type="text" name="nama_lengkap" class="form-control" value="<?= $user['nama_lengkap'] ?>" required>
-        </div>
-        <div class="form-group">
-            <label>Email</label>
-            <input type="email" name="email" class="form-control" value="<?= $user['email'] ?>">
-        </div>
-        <div class="form-group">
-            <label>NIP</label>
-            <input type="text" name="nip" class="form-control" value="<?= $user['nim_nip'] ?>">
-        </div>
+        <div class="form-group"><label>Username</label><input type="text" value="<?= $user['username'] ?>" class="form-control" disabled></div>
+        <div class="form-group"><label>Password (kosongkan jika tidak diubah)</label><input type="password" name="password" class="form-control"></div>
+        <div class="form-group"><label>Nama Lengkap</label><input type="text" name="nama_lengkap" class="form-control" value="<?= $user['nama_lengkap'] ?>" required></div>
+        <div class="form-group"><label>Email</label><input type="email" name="email" class="form-control" value="<?= $user['email'] ?>"></div>
+        <div class="form-group"><label>NIP</label><input type="text" name="nip" class="form-control" value="<?= $user['nim_nip'] ?>"></div>
         <div class="form-group">
             <label>Role</label>
             <select name="role" class="form-control">
@@ -85,4 +63,4 @@ include BASE_PATH . '/includes/header.php';
     </form>
 </div>
 
-<?php include BASE_PATH . '/includes/footer.php'; ?>
+<?php require_once BASE_PATH . '/includes/footer.php'; ?>

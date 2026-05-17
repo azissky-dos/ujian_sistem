@@ -1,37 +1,15 @@
 <?php
 session_start();
-
-// Tentukan BASE_PATH secara manual (AMAN)
-$base_path = dirname(__DIR__, 2);  // naik 2 level dari admin/xxx/ ke root
-require_once $base_path . '/config/config.php';
-
-// Cek login
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ' . BASE_URL . '/auth/login.php');
-    exit();
-}
-
-// Cek role
-if ($_SESSION['role'] != 'admin') {
-    die("Akses ditolak!");
-}
-
-// Koneksi database
+require_once __DIR__ . '/../../config/config.php';
 require_once BASE_PATH . '/config/database.php';
+
+if ($_SESSION['role'] != 'admin') die("Akses ditolak!");
 
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, trim($_GET['search'])) : '';
 $filter_kelas = isset($_GET['kelas_id']) ? (int)$_GET['kelas_id'] : 0;
 $filter_mk = isset($_GET['mk_induk_id']) ? (int)$_GET['mk_induk_id'] : 0;
 
-$query = "SELECT 
-            mhs.nim_nip as nim,
-            mhs.nama_lengkap as nama_mahasiswa,
-            k.nama_kelas,
-            mki.kode_mk,
-            mki.nama_mk as nama_mk_induk,
-            u.nilai_akhir,
-            u.jumlah_pindah_tab,
-            u.selesai_ujian
+$query = "SELECT mhs.nim_nip as nim, mhs.nama_lengkap as nama_mahasiswa, k.nama_kelas, mki.kode_mk, mki.nama_mk as nama_mk_induk, u.nilai_akhir, u.jumlah_pindah_tab, u.selesai_ujian
           FROM ujian u
           JOIN enrollments e ON u.enrollment_id = e.id
           JOIN users mhs ON e.mahasiswa_id = mhs.id
@@ -40,19 +18,9 @@ $query = "SELECT
           JOIN kelas k ON mk.kelas_id = k.id
           WHERE u.status = 'selesai'";
 
-if (!empty($search)) {
-    $query .= " AND (mhs.nim_nip LIKE '%$search%' 
-                    OR mhs.nama_lengkap LIKE '%$search%' 
-                    OR mki.kode_mk LIKE '%$search%'
-                    OR mki.nama_mk LIKE '%$search%'
-                    OR k.nama_kelas LIKE '%$search%')";
-}
-if ($filter_kelas > 0) {
-    $query .= " AND k.id = $filter_kelas";
-}
-if ($filter_mk > 0) {
-    $query .= " AND mki.id = $filter_mk";
-}
+if (!empty($search)) $query .= " AND (mhs.nim_nip LIKE '%$search%' OR mhs.nama_lengkap LIKE '%$search%' OR mki.kode_mk LIKE '%$search%' OR mki.nama_mk LIKE '%$search%' OR k.nama_kelas LIKE '%$search%')";
+if ($filter_kelas > 0) $query .= " AND k.id = $filter_kelas";
+if ($filter_mk > 0) $query .= " AND mki.id = $filter_mk";
 $query .= " ORDER BY u.selesai_ujian DESC";
 
 $result = mysqli_query($conn, $query);
@@ -76,6 +44,5 @@ while($row = mysqli_fetch_assoc($result)) {
     echo "<td>" . date('d/m/Y H:i', strtotime($row['selesai_ujian'])) . "</td>";
     echo "</tr>";
 }
-
 echo "</table>";
 ?>

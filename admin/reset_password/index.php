@@ -1,39 +1,31 @@
 <?php
 session_start();
+require_once __DIR__ . '/../../config/config.php';
 
-// Tentukan BASE_PATH secara manual (AMAN)
-$base_path = dirname(__DIR__, 2);  // naik 2 level dari admin/xxx/ ke root
-require_once $base_path . '/config/config.php';
-
-// Cek login
 if (!isset($_SESSION['user_id'])) {
     header('Location: ' . BASE_URL . '/auth/login.php');
     exit();
 }
 
-// Cek role
 if ($_SESSION['role'] != 'admin') {
     die("Akses ditolak!");
 }
 
-// Koneksi database
 require_once BASE_PATH . '/config/database.php';
 
 if (isset($_POST['reset'])) {
     $user_id = $_POST['user_id'];
-    $new_password = md5('123456');
-    mysqli_query($conn, "UPDATE users SET password='$new_password' WHERE id=$user_id");
+    mysqli_query($conn, "UPDATE users SET password='" . md5('123456') . "' WHERE id=$user_id");
     $success = "Password berhasil direset ke 123456";
 }
 
 $users = mysqli_query($conn, "SELECT id, username, nama_lengkap, role, nim_nip FROM users ORDER BY role, nama_lengkap");
 
-include BASE_PATH . '/includes/header.php';
+require_once BASE_PATH . '/includes/header.php';
 ?>
 
 <div class="page-header">
-    <h1 class="page-title">Reset Password User</h1>
-    <p class="page-subtitle">Admin dapat reset password siapa saja (admin, dosen, mahasiswa)</p>
+    <h1 class="page-title">Reset Password</h1>
 </div>
 
 <?php if(isset($success)): ?>
@@ -42,18 +34,15 @@ include BASE_PATH . '/includes/header.php';
 
 <div class="card-modern">
     <table class="table-modern">
-        <thead>
-            <tr><th>Username</th><th>Nama Lengkap</th><th>Role</th><th>NIM/NIP</th><th>Aksi</th></tr>
-        </thead>
+        <thead><tr><th>Username</th><th>Nama</th><th>Role</th><th>Aksi</th></tr></thead>
         <tbody>
             <?php while($user = mysqli_fetch_assoc($users)): ?>
             <tr>
                 <td><?= htmlspecialchars($user['username']) ?></td>
                 <td><?= htmlspecialchars($user['nama_lengkap']) ?></td>
-                <td><span class="badge <?= $user['role']=='admin'?'badge-danger':($user['role']=='dosen'?'badge-warning':'badge-success') ?>"><?= $user['role'] ?></span></td>
-                <td><?= htmlspecialchars($user['nim_nip'] ?? '-') ?></td>
+                <td><?= $user['role'] ?></td>
                 <td>
-                    <form method="POST" onsubmit="return confirm('Reset password <?= $user['username'] ?> ke 123456?')">
+                    <form method="POST" onsubmit="return confirm('Reset password <?= $user['username'] ?>?')">
                         <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
                         <button type="submit" name="reset" class="btn-primary" style="padding:6px 12px">Reset ke 123456</button>
                     </form>
@@ -64,4 +53,4 @@ include BASE_PATH . '/includes/header.php';
     </table>
 </div>
 
-<?php include BASE_PATH . '/includes/footer.php'; ?>
+<?php require_once BASE_PATH . '/includes/footer.php'; ?>

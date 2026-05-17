@@ -1,7 +1,7 @@
 <?php
 session_start();
-include __DIR__ . '/../config/config.php';
-include BASE_PATH . '/config/database.php';
+require_once __DIR__ . '/../config/config.php';
+require_once BASE_PATH . '/config/database.php';
 
 $error = '';
 
@@ -21,19 +21,14 @@ if (isset($_POST['login'])) {
         $_SESSION['role'] = $user['role'];
         $_SESSION['LAST_ACTIVITY'] = time();
         
-        // Redirect berdasarkan role
         if ($user['role'] == 'admin') {
-            header('Location: ../admin/dashboard.php');
-            exit();
+            header('Location: ' . BASE_URL . '/admin/dashboard.php');
         } elseif ($user['role'] == 'dosen') {
-            header('Location: ../dosen/dashboard.php');
-            exit();
+            header('Location: ' . BASE_URL . '/dosen/dashboard.php');
         } elseif ($user['role'] == 'mahasiswa') {
-            header('Location: ../mahasiswa/dashboard.php');
-            exit();
-        } else {
-            $error = "Role tidak dikenali!";
+            header('Location: ' . BASE_URL . '/mahasiswa/dashboard.php');
         }
+        exit();
     } else {
         $error = "Username atau password salah!";
     }
@@ -42,15 +37,13 @@ if (isset($_POST['login'])) {
 // Cek jika sudah login
 if (isset($_SESSION['user_id'])) {
     if ($_SESSION['role'] == 'admin') {
-        header('Location: ../admin/dashboard.php');
-        exit();
+        header('Location: ' . BASE_URL . '/admin/dashboard.php');
     } elseif ($_SESSION['role'] == 'dosen') {
-        header('Location: ../dosen/dashboard.php');
-        exit();
+        header('Location: ' . BASE_URL . '/dosen/dashboard.php');
     } elseif ($_SESSION['role'] == 'mahasiswa') {
-        header('Location: ../mahasiswa/dashboard.php');
-        exit();
+        header('Location: ' . BASE_URL . '/mahasiswa/dashboard.php');
     }
+    exit();
 }
 ?>
 <!DOCTYPE html>
@@ -99,9 +92,7 @@ if (isset($_SESSION['user_id'])) {
         </div>
         
         <?php if($error): ?>
-            <div class="alert error">
-                <i class="fas fa-exclamation-circle"></i> <?= $error ?>
-            </div>
+            <div class="alert error"><i class="fas fa-exclamation-circle"></i> <?= $error ?></div>
         <?php endif; ?>
         
         <form method="POST" action="">
@@ -124,7 +115,7 @@ if (isset($_SESSION['user_id'])) {
         </form>
         
         <div class="auth-footer">
-            <p>Belum punya akun? <a href="register_mahasiswa.php">Registrasi Mahasiswa</a></p>
+            <p>Belum punya akun? <a href="<?= BASE_URL ?>/auth/register_mahasiswa.php">Registrasi Mahasiswa</a></p>
         </div>
     </div>
 </div>
