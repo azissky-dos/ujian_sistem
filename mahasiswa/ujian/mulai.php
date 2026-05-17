@@ -32,7 +32,7 @@ if (!$enroll) {
 }
 $enrollment_id = $enroll['id'];
 
-// Cek ujian sedang berlangsung
+// Cek ujian sedang berlangsung (urutan parameter: enrollment_id, mk_id, conn)
 $ujian_aktif = cekUjianBerlangsung($enrollment_id, $mk_id, $conn);
 
 if ($ujian_aktif) {
@@ -40,10 +40,10 @@ if ($ujian_aktif) {
     $soal_ids = json_decode($ujian_aktif['soal_yang_dikeluarkan'], true);
     $mulai = $ujian_aktif['mulai_ujian'];
 } else {
-    // Ambil soal dari MK Induk
-    $soal_ids = ambilSoalAcakInduk($mk_induk_id, 5, $conn);
+    // Ambil soal dari MK Induk (urutan parameter: mk_induk_id, conn, jumlah)
+    $soal_ids = ambilSoalAcakInduk($mk_induk_id, $conn, 5);
     if (empty($soal_ids)) {
-        die("Soal belum tersedia untuk mata kuliah ini!");
+        die("Soal belum tersedia untuk mata kuliah ini! Minimal 5 soal.");
     }
     
     mysqli_query($conn, "INSERT INTO ujian (enrollment_id, mk_id, mulai_ujian, status, soal_yang_dikeluarkan) 
