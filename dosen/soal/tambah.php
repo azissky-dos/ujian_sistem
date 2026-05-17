@@ -1,7 +1,7 @@
 <?php
 session_start();
-include '../../includes/cek_login.php';
-include '../../config/database.php';
+require_once __DIR__ . '/../../includes/cek_login.php';
+require_once __DIR__ . '/../../config/database.php';
 
 if ($_SESSION['role'] != 'dosen') {
     die("Akses ditolak!");
@@ -10,7 +10,6 @@ if ($_SESSION['role'] != 'dosen') {
 $dosen_id = $_SESSION['user_id'];
 $mk_induk_id_dari_url = isset($_GET['mk_induk_id']) ? (int)$_GET['mk_induk_id'] : 0;
 
-// Ambil daftar MK Induk yang diajarkan dosen (melalui kelas yang diajar)
 $mk_induk_list = mysqli_query($conn, "
     SELECT DISTINCT mki.id, mki.kode_mk, mki.nama_mk
     FROM mata_kuliah_induk mki
@@ -27,7 +26,6 @@ if (isset($_POST['simpan'])) {
     $kunci_jawaban = mysqli_real_escape_string($conn, $_POST['kunci_jawaban']);
     $bobot = $_POST['bobot'];
     
-    // Untuk tipe soal PG, ambil nilai pilihan
     $pilihan_A = mysqli_real_escape_string($conn, $_POST['pilihan_A'] ?? '');
     $pilihan_B = mysqli_real_escape_string($conn, $_POST['pilihan_B'] ?? '');
     $pilihan_C = mysqli_real_escape_string($conn, $_POST['pilihan_C'] ?? '');
@@ -40,7 +38,7 @@ if (isset($_POST['simpan'])) {
     $success = "Soal berhasil ditambahkan! Soal ini akan tersedia untuk semua kelas yang memiliki MK ini.";
 }
 
-include '../../includes/header.php';
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
 <div class="page-header">
@@ -81,29 +79,13 @@ include '../../includes/header.php';
             <textarea name="teks_soal" class="form-control" rows="4" required placeholder="Tulis pertanyaan soal di sini..."></textarea>
         </div>
         
-        <!-- ========== PILIHAN A-E (khusus PG) ========== -->
         <div id="pg_options" style="display: none; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-bottom: 20px; background: #f8fafc;">
             <h4 style="margin-bottom: 15px;">📝 Opsi Pilihan Ganda</h4>
-            <div class="form-group">
-                <label>A.</label>
-                <input type="text" name="pilihan_A" class="form-control" placeholder="Teks untuk pilihan A">
-            </div>
-            <div class="form-group">
-                <label>B.</label>
-                <input type="text" name="pilihan_B" class="form-control" placeholder="Teks untuk pilihan B">
-            </div>
-            <div class="form-group">
-                <label>C.</label>
-                <input type="text" name="pilihan_C" class="form-control" placeholder="Teks untuk pilihan C">
-            </div>
-            <div class="form-group">
-                <label>D.</label>
-                <input type="text" name="pilihan_D" class="form-control" placeholder="Teks untuk pilihan D">
-            </div>
-            <div class="form-group">
-                <label>E.</label>
-                <input type="text" name="pilihan_E" class="form-control" placeholder="Teks untuk pilihan E">
-            </div>
+            <div class="form-group"><label>A.</label><input type="text" name="pilihan_A" class="form-control" placeholder="Teks untuk pilihan A"></div>
+            <div class="form-group"><label>B.</label><input type="text" name="pilihan_B" class="form-control" placeholder="Teks untuk pilihan B"></div>
+            <div class="form-group"><label>C.</label><input type="text" name="pilihan_C" class="form-control" placeholder="Teks untuk pilihan C"></div>
+            <div class="form-group"><label>D.</label><input type="text" name="pilihan_D" class="form-control" placeholder="Teks untuk pilihan D"></div>
+            <div class="form-group"><label>E.</label><input type="text" name="pilihan_E" class="form-control" placeholder="Teks untuk pilihan E"></div>
         </div>
         
         <div class="form-group">
@@ -132,9 +114,8 @@ $(document).ready(function() {
             $('#pg_options').slideUp(300);
         }
     });
-    
     $('#tipe_soal').trigger('change');
 });
 </script>
 
-<?php include '../../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../../includes/footer.php'; ?>

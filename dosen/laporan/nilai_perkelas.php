@@ -1,7 +1,7 @@
 <?php
 session_start();
-include '../../includes/cek_login.php';
-include '../../config/database.php';
+require_once __DIR__ . '/../../includes/cek_login.php';
+require_once __DIR__ . '/../../config/database.php';
 
 if ($_SESSION['role'] != 'dosen') {
     die("Akses ditolak!");
@@ -12,7 +12,6 @@ $mk_induk_id = isset($_GET['mk_induk_id']) ? (int)$_GET['mk_induk_id'] : 0;
 $kelas_id = isset($_GET['kelas_id']) ? (int)$_GET['kelas_id'] : 0;
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, trim($_GET['search'])) : '';
 
-// Ambil daftar MK Induk yang diajarkan dosen
 $mk_induk_list = mysqli_query($conn, "
     SELECT DISTINCT mki.id, mki.kode_mk, mki.nama_mk
     FROM mata_kuliah_induk mki
@@ -22,7 +21,6 @@ $mk_induk_list = mysqli_query($conn, "
     ORDER BY mki.kode_mk
 ");
 
-// Ambil daftar kelas untuk MK induk yang dipilih
 if ($mk_induk_id > 0) {
     $kelas_list = mysqli_query($conn, "
         SELECT DISTINCT k.id, k.nama_kelas
@@ -33,7 +31,6 @@ if ($mk_induk_id > 0) {
     ");
 }
 
-// Ambil data nilai
 if ($mk_induk_id > 0 && $kelas_id > 0) {
     $query = "
         SELECT u.nilai_akhir, u.mulai_ujian, u.selesai_ujian, u.jumlah_pindah_tab,
@@ -56,7 +53,7 @@ if ($mk_induk_id > 0 && $kelas_id > 0) {
     $nilai_list = mysqli_query($conn, $query);
 }
 
-include '../../includes/header.php';
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
 <div class="page-header">
@@ -94,7 +91,6 @@ include '../../includes/header.php';
     <?php endif; ?>
     
     <?php if($mk_induk_id > 0 && $kelas_id > 0 && isset($nilai_list)): ?>
-        <!-- Form Search -->
         <form method="GET" style="margin-top: 16px; display: flex; gap: 10px; align-items: flex-end;">
             <input type="hidden" name="mk_induk_id" value="<?= $mk_induk_id ?>">
             <input type="hidden" name="kelas_id" value="<?= $kelas_id ?>">
@@ -124,53 +120,28 @@ include '../../includes/header.php';
         ?>
         
         <div class="dashboard-grid" style="margin-top:20px">
-            <div class="stat-card">
-                <div class="stat-info"><h3><?= $count ?></h3><p>Jumlah Peserta</p></div>
-                <div class="stat-icon"><i class="fas fa-users"></i></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-info"><h3><?= $rata_rata ?></h3><p>Rata-rata Nilai</p></div>
-                <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-info"><h3><?= $tertinggi ?></h3><p>Nilai Tertinggi</p></div>
-                <div class="stat-icon"><i class="fas fa-trophy"></i></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-info"><h3><?= $terendah ?></h3><p>Nilai Terendah</p></div>
-                <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
-            </div>
+            <div class="stat-card"><div class="stat-info"><h3><?= $count ?></h3><p>Jumlah Peserta</p></div><div class="stat-icon"><i class="fas fa-users"></i></div></div>
+            <div class="stat-card"><div class="stat-info"><h3><?= $rata_rata ?></h3><p>Rata-rata Nilai</p></div><div class="stat-icon"><i class="fas fa-chart-line"></i></div></div>
+            <div class="stat-card"><div class="stat-info"><h3><?= $tertinggi ?></h3><p>Nilai Tertinggi</p></div><div class="stat-icon"><i class="fas fa-trophy"></i></div></div>
+            <div class="stat-card"><div class="stat-info"><h3><?= $terendah ?></h3><p>Nilai Terendah</p></div><div class="stat-icon"><i class="fas fa-chart-line"></i></div></div>
         </div>
         
         <table class="table-modern" style="margin-top:20px">
-            <thead>
-                <tr>
-                    <th>NIM</th>
-                    <th>Nama Mahasiswa</th>
-                    <th>Email</th>
-                    <th>Nilai</th>
-                    <th>Pindah Tab</th>
-                    <th>Tanggal Ujian</th>
-                </tr>
-            </thead>
+            <thead><tr><th>NIM</th><th>Nama Mahasiswa</th><th>Email</th><th>Nilai</th><th>Pindah Tab</th><th>Tanggal Ujian</th></tr></thead>
             <tbody>
                 <?php if($count > 0): ?>
                     <?php foreach($nilai_array as $row): ?>
                     <tr>
-                        <td><?= htmlspecialchars($row['nim_nip']) ?> </td>
-                        <td><?= htmlspecialchars($row['nama_lengkap']) ?> </td>
-                        <td><?= htmlspecialchars($row['email']) ?> </td>
-                        <td><strong><?= round($row['nilai_akhir'], 2) ?></strong> </td>
-                        <td><?= $row['jumlah_pindah_tab'] ?> x </td>
-                        <td><?= date('d/m/Y H:i', strtotime($row['selesai_ujian'])) ?> </td>
+                        <td><?= htmlspecialchars($row['nim_nip']) ?></td>
+                        <td><?= htmlspecialchars($row['nama_lengkap']) ?></td>
+                        <td><?= htmlspecialchars($row['email']) ?></td>
+                        <td><strong><?= round($row['nilai_akhir'], 2) ?></strong></td>
+                        <td><?= $row['jumlah_pindah_tab'] ?> x</td>
+                        <td><?= date('d/m/Y H:i', strtotime($row['selesai_ujian'])) ?></td>
                     </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <tr>
-                        <td colspan="6" style="text-align:center">
-                            <?= !empty($search) ? "Tidak ada mahasiswa yang cocok dengan '$search'" : "Belum ada mahasiswa yang mengikuti ujian ini" ?>
-                         ﹏
-                    </tr>
+                    <tr><td colspan="6" style="text-align:center"><?= !empty($search) ? "Tidak ada mahasiswa yang cocok dengan '$search'" : "Belum ada mahasiswa yang mengikuti ujian ini" ?></td></tr>
                 <?php endif; ?>
             </tbody>
         </table>
@@ -181,4 +152,4 @@ include '../../includes/header.php';
     <?php endif; ?>
 </div>
 
-<?php include '../../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../../includes/footer.php'; ?>

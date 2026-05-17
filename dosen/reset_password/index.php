@@ -1,7 +1,7 @@
 <?php
 session_start();
-include '../../includes/cek_login.php';
-include '../../config/database.php';
+require_once __DIR__ . '/../../includes/cek_login.php';
+require_once __DIR__ . '/../../config/database.php';
 
 if ($_SESSION['role'] != 'dosen') {
     die("Akses ditolak!");
@@ -25,7 +25,7 @@ $mahasiswa = mysqli_query($conn, "
     ORDER BY k.nama_kelas, u.nama_lengkap
 ");
 
-include '../../includes/header.php';
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
 <div class="page-header">
@@ -39,14 +39,7 @@ include '../../includes/header.php';
 
 <div class="card-modern">
     <table class="table-modern">
-        <thead>
-            <tr>
-                <th>NIM</th>
-                <th>Nama Mahasiswa</th>
-                <th>Kelas</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
+        <thead><tr><th>NIM</th><th>Nama Mahasiswa</th><th>Kelas</th><th>Aksi</th></tr></thead>
         <tbody>
             <?php if(mysqli_num_rows($mahasiswa) > 0): ?>
                 <?php while($m = mysqli_fetch_assoc($mahasiswa)): ?>
@@ -63,15 +56,10 @@ include '../../includes/header.php';
                 </tr>
                 <?php endwhile; ?>
             <?php else: ?>
-                <tr>
-                    <td colspan="4" style="text-align:center">Belum ada mahasiswa terdaftar di kelas Anda</td>
-                </tr>
+                <tr><td colspan="4" style="text-align:center">Belum ada mahasiswa terdaftar di kelas Anda</td></tr>
             <?php endif; ?>
         </tbody>
-     </table>
-    <div class="alert info" style="margin-top:16px">
-        <i class="fas fa-info-circle"></i> Password akan direset menjadi <strong>123456</strong>. Mahasiswa bisa mengganti sendiri setelah login.
-    </div>
+    </table>
 </div>
 
-<?php include '../../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../../includes/footer.php'; ?>

@@ -1,7 +1,7 @@
 <?php
 session_start();
-include '../includes/cek_login.php';
-include '../config/database.php';
+require_once __DIR__ . '/../includes/cek_login.php';
+require_once __DIR__ . '/../config/database.php';
 
 if ($_SESSION['role'] != 'dosen') {
     die("Akses ditolak!");
@@ -14,7 +14,7 @@ $total_mk = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FRO
 $total_mahasiswa = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(DISTINCT e.mahasiswa_id) as total FROM enrollments e JOIN kelas k ON e.kelas_id=k.id WHERE k.dosen_id=$dosen_id"))['total'];
 $total_soal = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM soal s JOIN mata_kuliah mk ON s.mk_id=mk.id JOIN kelas k ON mk.kelas_id=k.id WHERE k.dosen_id=$dosen_id"))['total'];
 
-include '../includes/header.php';
+require_once __DIR__ . '/../includes/header.php';
 ?>
 
 <div class="page-header">
@@ -28,36 +28,28 @@ include '../includes/header.php';
             <h3><?= $total_kelas ?></h3>
             <p>Kelas Saya</p>
         </div>
-        <div class="stat-icon">
-            <i class="fas fa-school"></i>
-        </div>
+        <div class="stat-icon"><i class="fas fa-school"></i></div>
     </div>
     <div class="stat-card">
         <div class="stat-info">
             <h3><?= $total_mk ?></h3>
             <p>Mata Kuliah</p>
         </div>
-        <div class="stat-icon">
-            <i class="fas fa-book"></i>
-        </div>
+        <div class="stat-icon"><i class="fas fa-book"></i></div>
     </div>
     <div class="stat-card">
         <div class="stat-info">
             <h3><?= $total_mahasiswa ?></h3>
             <p>Mahasiswa</p>
         </div>
-        <div class="stat-icon">
-            <i class="fas fa-user-graduate"></i>
-        </div>
+        <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
     </div>
     <div class="stat-card">
         <div class="stat-info">
             <h3><?= $total_soal ?></h3>
             <p>Total Soal</p>
         </div>
-        <div class="stat-icon">
-            <i class="fas fa-question-circle"></i>
-        </div>
+        <div class="stat-icon"><i class="fas fa-question-circle"></i></div>
     </div>
 </div>
 
@@ -89,4 +81,4 @@ include '../includes/header.php';
     </div>
 </div>
 
-<?php include '../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>

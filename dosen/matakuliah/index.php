@@ -1,7 +1,7 @@
 <?php
 session_start();
-include '../../includes/cek_login.php';
-include '../../config/database.php';
+require_once __DIR__ . '/../../includes/cek_login.php';
+require_once __DIR__ . '/../../config/database.php';
 
 if ($_SESSION['role'] != 'dosen') {
     die("Akses ditolak!");
@@ -31,7 +31,7 @@ $query .= " GROUP BY mki.id ORDER BY mki.kode_mk";
 
 $matakuliah = mysqli_query($conn, $query);
 
-include '../../includes/header.php';
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
 <div class="page-header">
@@ -49,51 +49,38 @@ include '../../includes/header.php';
     </div>
 </div>
 
-<?php if(!empty($search) && mysqli_num_rows($matakuliah) == 0): ?>
-    <div class="alert info">Tidak ada mata kuliah yang cocok dengan "<?= htmlspecialchars($search) ?>"</div>
-<?php endif; ?>
-
 <div class="card-modern">
     <table class="table-modern">
         <thead>
-            <tr>
-                <th>Kode MK</th>
-                <th>Nama Mata Kuliah</th>
-                <th>Diajarkan di Kelas</th>
-                <th>Jumlah Soal</th>
-                <th>Status Soal</th>
-                <th>Aksi</th>
-            </tr>
+            <tr><th>Kode MK</th><th>Nama MK</th><th>Diajarkan di Kelas</th><th>Jumlah Soal</th><th>Status Soal</th><th>Aksi</th></tr>
         </thead>
         <tbody>
             <?php if(mysqli_num_rows($matakuliah) > 0): ?>
                 <?php while($mk = mysqli_fetch_assoc($matakuliah)): ?>
                 <tr>
-                    <td><?= htmlspecialchars($mk['kode_mk']) ?> </td>
-                    <td><?= htmlspecialchars($mk['nama_mk']) ?> </td>
-                    <td><?= htmlspecialchars($mk['daftar_kelas']) ?> </td>
-                    <td><?= $mk['jumlah_soal'] ?> soal </td>
+                    <td><?= htmlspecialchars($mk['kode_mk']) ?></td>
+                    <td><?= htmlspecialchars($mk['nama_mk']) ?></td>
+                    <td><?= htmlspecialchars($mk['daftar_kelas']) ?></td>
+                    <td><?= $mk['jumlah_soal'] ?> soal</td>
                     <td>
                         <?php if($mk['jumlah_soal'] >= 50): ?>
-                            <span class="badge badge-success">✅ Siap Ujian</span>
+                            <span class="badge badge-success" style="background:#10b981; color:white; padding:4px 12px; border-radius:20px;">✅ Siap Ujian</span>
                         <?php else: ?>
-                            <span class="badge badge-danger">⚠️ Kurang <?= 50 - $mk['jumlah_soal'] ?> soal</span>
+                            <span class="badge badge-danger" style="background:#dc2626; color:white; padding:4px 12px; border-radius:20px;">⚠️ Kurang <?= 50 - $mk['jumlah_soal'] ?> soal</span>
                         <?php endif; ?>
-                     ﹏
+                     </td>
                     <td>
                         <a href="../soal/tambah.php?mk_induk_id=<?= $mk['mk_induk_id'] ?>" class="btn-primary" style="padding:4px 10px;font-size:12px;"><i class="fas fa-plus"></i> Soal</a>
                         <a href="../soal/list.php?mk_induk_id=<?= $mk['mk_induk_id'] ?>" class="btn-outline" style="padding:4px 10px;font-size:12px;"><i class="fas fa-list"></i> List</a>
                         <a href="../laporan/nilai_perkelas.php?mk_induk_id=<?= $mk['mk_induk_id'] ?>" class="btn-info" style="padding:4px 10px;font-size:12px;background:#06b6d4;color:white;border-radius:8px;text-decoration:none;"><i class="fas fa-chart-line"></i> Nilai</a>
-                     ﹏
+                     </td>
                 </tr>
                 <?php endwhile; ?>
             <?php else: ?>
-                <tr>
-                    <td colspan="6" style="text-align:center">Belum ada mata kuliah yang ditugaskan ﹏
-                </tr>
+                <tr><td colspan="6" style="text-align:center">Belum ada mata kuliah yang ditugaskan</td></tr>
             <?php endif; ?>
         </tbody>
     </table>
 </div>
 
-<?php include '../../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../../includes/footer.php'; ?>

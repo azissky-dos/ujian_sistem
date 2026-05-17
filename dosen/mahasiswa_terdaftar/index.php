@@ -1,7 +1,7 @@
 <?php
 session_start();
-include '../../includes/cek_login.php';
-include '../../config/database.php';
+require_once __DIR__ . '/../../includes/cek_login.php';
+require_once __DIR__ . '/../../config/database.php';
 
 if ($_SESSION['role'] != 'dosen') {
     die("Akses ditolak!");
@@ -45,7 +45,7 @@ if (isset($_POST['reset_password'])) {
     $success = "Password mahasiswa berhasil direset ke 123456";
 }
 
-include '../../includes/header.php';
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
 <div class="page-header">
@@ -71,7 +71,6 @@ include '../../includes/header.php';
     </div>
     
     <?php if($kelas_id > 0): ?>
-        <!-- Form Search -->
         <form method="GET" style="margin-top: 16px; display: flex; gap: 10px;">
             <input type="hidden" name="kelas_id" value="<?= $kelas_id ?>">
             <input type="text" name="search" class="form-control" placeholder="Cari NIM, nama, username, email, atau MK..." 
@@ -84,50 +83,32 @@ include '../../includes/header.php';
         
         <table class="table-modern" style="margin-top:20px">
             <thead>
-                <tr>
-                    <th>NIM</th>
-                    <th>Nama Mahasiswa</th>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Mata Kuliah Dipilih</th>
-                    <th>Tanggal Daftar</th>
-                    <th>Aksi</th>
-                </tr>
+                <tr><th>NIM</th><th>Nama Mahasiswa</th><th>Username</th><th>Email</th><th>Mata Kuliah Dipilih</th><th>Tanggal Daftar</th><th>Aksi</th></tr>
             </thead>
             <tbody>
                 <?php if(isset($mahasiswa) && mysqli_num_rows($mahasiswa) > 0): ?>
                     <?php while($m = mysqli_fetch_assoc($mahasiswa)): ?>
                     <tr>
-                        <td><?= htmlspecialchars($m['nim_nip']) ?> </td>
-                        <td><?= htmlspecialchars($m['nama_lengkap']) ?> </td>
-                        <td><?= htmlspecialchars($m['username']) ?> </td>
-                        <td><?= htmlspecialchars($m['email']) ?> </td>
-                        <td>
-                            <span class="badge" style="background:#e0e7ff; color:#4338ca; padding:4px 12px; border-radius:20px;">
-                                <?= htmlspecialchars($m['mk_terpilih']) ?>
-                            </span>
-                         ﹏
-                        <td><?= date('d/m/Y', strtotime($m['tanggal_daftar'])) ?> ﹏
+                        <td><?= htmlspecialchars($m['nim_nip']) ?></td>
+                        <td><?= htmlspecialchars($m['nama_lengkap']) ?></td>
+                        <td><?= htmlspecialchars($m['username']) ?></td>
+                        <td><?= htmlspecialchars($m['email']) ?></td>
+                        <td><span class="badge" style="background:#e0e7ff; color:#4338ca; padding:4px 12px; border-radius:20px;"><?= htmlspecialchars($m['mk_terpilih']) ?></span></td>
+                        <td><?= date('d/m/Y', strtotime($m['tanggal_daftar'])) ?></td>
                         <td>
                             <form method="POST" onsubmit="return confirm('Reset password <?= $m['nama_lengkap'] ?> ke 123456?')">
                                 <input type="hidden" name="user_id" value="<?= $m['id'] ?>">
-                                <button type="submit" name="reset_password" class="btn-primary" style="padding:4px 10px;font-size:12px">
-                                    <i class="fas fa-key"></i> Reset Password
-                                </button>
+                                <button type="submit" name="reset_password" class="btn-primary" style="padding:4px 10px;font-size:12px"><i class="fas fa-key"></i> Reset Password</button>
                             </form>
-                         ﹏
+                         </td>
                     </tr>
                     <?php endwhile; ?>
                 <?php else: ?>
-                    <tr>
-                        <td colspan="7" style="text-align:center">
-                            <?= !empty($search) ? "Tidak ada mahasiswa yang cocok dengan '$search'" : "Belum ada mahasiswa terdaftar di kelas ini" ?>
-                         ﹏
-                    </tr>
+                    <tr><td colspan="7" style="text-align:center"><?= !empty($search) ? "Tidak ada mahasiswa yang cocok dengan '$search'" : "Belum ada mahasiswa terdaftar di kelas ini" ?></td></tr>
                 <?php endif; ?>
             </tbody>
         </table>
     <?php endif; ?>
 </div>
 
-<?php include '../../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../../includes/footer.php'; ?>

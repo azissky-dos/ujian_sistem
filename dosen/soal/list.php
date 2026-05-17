@@ -1,7 +1,7 @@
 <?php
 session_start();
-include '../../includes/cek_login.php';
-include '../../config/database.php';
+require_once __DIR__ . '/../../includes/cek_login.php';
+require_once __DIR__ . '/../../config/database.php';
 
 if ($_SESSION['role'] != 'dosen') {
     die("Akses ditolak!");
@@ -11,7 +11,6 @@ $dosen_id = $_SESSION['user_id'];
 $mk_induk_id = isset($_GET['mk_induk_id']) ? (int)$_GET['mk_induk_id'] : 0;
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, trim($_GET['search'])) : '';
 
-// Ambil daftar MK Induk yang diajarkan dosen
 $mk_induk_list = mysqli_query($conn, "
     SELECT DISTINCT mki.id, mki.kode_mk, mki.nama_mk
     FROM mata_kuliah_induk mki
@@ -39,7 +38,7 @@ if (isset($_GET['hapus_soal'])) {
     exit();
 }
 
-include '../../includes/header.php';
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
 <div class="page-header">
@@ -61,7 +60,6 @@ include '../../includes/header.php';
     </div>
     
     <?php if($mk_induk_id > 0 && isset($mk_info)): ?>
-        <!-- Search -->
         <form method="GET" style="margin-top: 16px; display: flex; gap: 10px;">
             <input type="hidden" name="mk_induk_id" value="<?= $mk_induk_id ?>">
             <input type="text" name="search" class="form-control" placeholder="Cari teks soal atau kunci jawaban..." 
@@ -84,22 +82,13 @@ include '../../includes/header.php';
         </div>
         
         <table class="table-modern">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Tipe Soal</th>
-                    <th>Soal & Pilihan</th>
-                    <th>Kunci Jawaban</th>
-                    <th>Bobot</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
+            <thead><tr><th>ID</th><th>Tipe Soal</th><th>Soal & Pilihan</th><th>Kunci Jawaban</th><th>Bobot</th><th>Aksi</th></tr></thead>
             <tbody>
                 <?php if($total_soal > 0): ?>
                     <?php while($soal = mysqli_fetch_assoc($soal_list)): ?>
                     <tr>
-                        <td><?= $soal['id'] ?> </td>
-                        <td><?= $soal['tipe_soal'] ?> </td>
+                        <td><?= $soal['id'] ?></td>
+                        <td><?= $soal['tipe_soal'] ?></td>
                         <td style="max-width: 400px;">
                             <strong><?= htmlspecialchars(substr($soal['teks_soal'], 0, 80)) ?>...</strong>
                             <?php if($soal['tipe_soal'] == 'pg'): ?>
@@ -111,22 +100,18 @@ include '../../includes/header.php';
                                     E. <?= htmlspecialchars(substr($soal['pilihan_E'] ?? '', 0, 40)) ?>
                                 </div>
                             <?php endif; ?>
-                         </td>
-                        <td><?= htmlspecialchars(substr($soal['kunci_jawaban'], 0, 50)) ?>... </td>
-                        <td><?= $soal['bobot'] ?> </td>
+                        </td>
+                        <td><?= htmlspecialchars(substr($soal['kunci_jawaban'], 0, 50)) ?>...</td>
+                        <td><?= $soal['bobot'] ?></td>
                         <td>
                             <a href="?mk_induk_id=<?= $mk_induk_id ?>&search=<?= urlencode($search) ?>&hapus_soal=<?= $soal['id'] ?>" 
                                class="btn-danger" style="padding:4px 10px;font-size:12px;background:#dc2626;color:white;border-radius:8px;text-decoration:none;" 
                                onclick="return confirm('Yakin hapus soal ini?')">Hapus</a>
-                         ﹏
+                         </td>
                     </tr>
                     <?php endwhile; ?>
                 <?php else: ?>
-                    <tr>
-                        <td colspan="6" style="text-align:center">
-                            <?= !empty($search) ? "Tidak ada soal yang cocok dengan '$search'" : "Belum ada soal untuk mata kuliah ini. <a href='tambah.php?mk_induk_id=$mk_induk_id'>Buat soal sekarang</a>" ?>
-                         ﹏
-                    </tr>
+                    <tr><td colspan="6" style="text-align:center"><?= !empty($search) ? "Tidak ada soal yang cocok dengan '$search'" : "Belum ada soal untuk mata kuliah ini. <a href='tambah.php?mk_induk_id=$mk_induk_id'>Buat soal sekarang</a>" ?></td></tr>
                 <?php endif; ?>
             </tbody>
         </table>
@@ -137,4 +122,4 @@ include '../../includes/header.php';
     <?php endif; ?>
 </div>
 
-<?php include '../../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../../includes/footer.php'; ?>

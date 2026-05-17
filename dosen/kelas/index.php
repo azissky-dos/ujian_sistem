@@ -1,7 +1,7 @@
 <?php
 session_start();
-include '../../includes/cek_login.php';
-include '../../config/database.php';
+require_once __DIR__ . '/../../includes/cek_login.php';
+require_once __DIR__ . '/../../config/database.php';
 
 if ($_SESSION['role'] != 'dosen') {
     die("Akses ditolak!");
@@ -18,7 +18,7 @@ $query .= " ORDER BY nama_kelas";
 
 $kelas = mysqli_query($conn, $query);
 
-include '../../includes/header.php';
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
 <div class="page-header">
@@ -42,36 +42,28 @@ include '../../includes/header.php';
 <div class="card-modern">
     <table class="table-modern">
         <thead>
-            <tr>
-                <th>Nama Kelas</th>
-                <th>Tahun Ajaran</th>
-                <th>Jumlah MK</th>
-                <th>Aksi</th>
-            </tr>
+            <tr><th>Nama Kelas</th><th>Tahun Ajaran</th><th>Jumlah MK</th><th>Aksi</th></tr>
         </thead>
         <tbody>
             <?php if(mysqli_num_rows($kelas) > 0): ?>
-                <?php while($k = mysqli_fetch_assoc($kelas)): ?>
-                <?php 
+                <?php while($k = mysqli_fetch_assoc($kelas)): 
                     $total_mk = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM mata_kuliah WHERE kelas_id={$k['id']}"))['total'];
                 ?>
                 <tr>
-                    <td><?= htmlspecialchars($k['nama_kelas']) ?> </td>
-                    <td><?= htmlspecialchars($k['tahun_ajaran']) ?> </td>
-                    <td><?= $total_mk ?> Mata Kuliah </td>
+                    <td><?= htmlspecialchars($k['nama_kelas']) ?></td>
+                    <td><?= htmlspecialchars($k['tahun_ajaran']) ?></td>
+                    <td><?= $total_mk ?> Mata Kuliah</td>
                     <td>
                         <a href="../matakuliah/index.php?kelas_id=<?= $k['id'] ?>" class="btn-primary" style="padding:4px 10px;font-size:12px;">Lihat MK</a>
                         <a href="../mahasiswa_terdaftar/index.php?kelas_id=<?= $k['id'] ?>" class="btn-outline" style="padding:4px 10px;font-size:12px;">Lihat Mhs</a>
-                     ﹏
-                <tr>
+                    </td>
+                </tr>
                 <?php endwhile; ?>
             <?php else: ?>
-                <tr>
-                    <td colspan="4" style="text-align:center">Belum ada kelas yang ditugaskan ﹏
-                </tr>
+                <tr><td colspan="4" style="text-align:center">Belum ada kelas yang ditugaskan</td></tr>
             <?php endif; ?>
         </tbody>
     </table>
 </div>
 
-<?php include '../../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../../includes/footer.php'; ?>
