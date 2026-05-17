@@ -395,16 +395,14 @@ $(document).ready(function() {
         var kelas_id = $(this).val();
         if(kelas_id) {
             $('#mk_checklist').html('<div class="alert info"><i class="fas fa-spinner fa-spin"></i> Memuat data mata kuliah...</div>');
-            
             $.ajax({
-                url: 'get_mk_by_kelas.php',  // ← PAKAI PATH RELATIF!
+                url: 'get_mk_by_kelas.php',  // ← PAKAI PATH RELATIF, BUKAN BASE_URL
                 type: 'POST',
                 data: {kelas_id: kelas_id},
                 dataType: 'json',
                 success: function(data) {
-                    console.log('Data received:', data); // Untuk debug
                     var html = '';
-                    if(data.length > 0) {
+                    if(data.length > 0 && !data.error) {
                         html += '<div class="select-all">';
                         html += '<input type="checkbox" id="select_all_mk">';
                         html += '<label for="select_all_mk">📋 Pilih Semua Mata Kuliah</label>';
@@ -417,6 +415,8 @@ $(document).ready(function() {
                             html += '</div>';
                         }
                         html += '</div>';
+                    } else if(data.error) {
+                        html = '<div class="alert error"><i class="fas fa-exclamation-circle"></i> Error: ' + data.error + '</div>';
                     } else {
                         html = '<div class="alert error"><i class="fas fa-exclamation-triangle"></i> Belum ada mata kuliah di kelas ini. Hubungi admin.</div>';
                     }
@@ -428,8 +428,7 @@ $(document).ready(function() {
                 },
                 error: function(xhr, status, error) {
                     console.error('AJAX Error:', status, error);
-                    console.log('Response:', xhr.responseText);
-                    $('#mk_checklist').html('<div class="alert error"><i class="fas fa-exclamation-circle"></i> Gagal memuat data mata kuliah. Silakan coba lagi. Error: ' + status + '</div>');
+                    $('#mk_checklist').html('<div class="alert error"><i class="fas fa-exclamation-circle"></i> Gagal memuat data mata kuliah. Silakan coba lagi.</div>');
                 }
             });
         } else {
