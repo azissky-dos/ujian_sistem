@@ -32,7 +32,7 @@ if (!$enroll) {
 }
 $enrollment_id = $enroll['id'];
 
-// Cek ujian sedang berlangsung (urutan parameter: enrollment_id, mk_id, conn)
+// Cek ujian sedang berlangsung
 $ujian_aktif = cekUjianBerlangsung($enrollment_id, $mk_id, $conn);
 
 if ($ujian_aktif) {
@@ -40,14 +40,25 @@ if ($ujian_aktif) {
     $soal_ids = json_decode($ujian_aktif['soal_yang_dikeluarkan'], true);
     $mulai = $ujian_aktif['mulai_ujian'];
 } else {
-    // Ambil soal dari MK Induk (urutan parameter: mk_induk_id, conn, jumlah)
+    // Ambil soal dari MK Induk
     $soal_ids = ambilSoalAcakInduk($mk_induk_id, $conn, 5);
+    
+    // DEBUG: Cek apakah soal tersedia
     if (empty($soal_ids)) {
-        die("Soal belum tersedia untuk mata kuliah ini! Minimal 5 soal.");
+        $query_cek = "SELECT COUNT(*) as total FROM soal WHERE mk_induk_id = $mk_induk_id";
+        $cek_result = mysqli_query($conn, $query_cek);
+        $cek_row = mysqli_fetch_assoc($cek_result);
+        die("Soal belum tersedia! Total soal untuk MK ini: " . ($cek_row['total'] ?? 0) . ". Minimal 5 soal.");
     }
     
-    mysqli_query($conn, "INSERT INTO ujian (enrollment_id, mk_id, mulai_ujian, status, soal_yang_dikeluarkan) 
-                         VALUES ($enrollment_id, $mk_id, NOW(), 'sedang', '" . json_encode($soal_ids) . "')");
+    $soal_baru_json = mysqli_real_escape_string($conn, json_encode($soal_ids));
+    $query = "INSERT INTO ujian (enrollment_id, mk_id, mulai_ujian, status, soal_yang_dikeluarkan) 
+              VALUES ($enrollment_id, $mk_id, NOW(), 'sedang', '$soal_baru_json')";
+    
+    if (!mysqli_query($conn, $query)) {
+        die("Error saat memulai ujian: " . mysqli_error($conn));
+    }
+    
     $ujian_id = mysqli_insert_id($conn);
     $mulai = date('Y-m-d H:i:s');
 }
@@ -70,8 +81,8 @@ require_once __DIR__ . '/../../includes/header.php';
             $soal = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM soal WHERE id=$soal_id"));
             if (!$soal) continue;
         ?>
-        <div class="soal-card" data-soal-id="<?= $soal_id ?>" data-soal-no="<?= $no ?>">
-            <div><span class="soal-number"><?= $no++ ?></span> <strong class="soal-teks"><?= htmlspecialchars($soal['teks_soal']) ?></strong></div>
+        <div class="soal-card" data-soal-id="<?= $soal_id ?>">
+            <div><span class="soal-number"><?= $no++ ?></span> <strong><?= htmlspecialchars($soal['teks_soal']) ?></strong></div>
             
             <?php if($soal['tipe_soal'] == 'pg'): ?>
                 <div class="radio-group" style="margin-top: 12px; margin-left: 20px;">
@@ -97,19 +108,17 @@ require_once __DIR__ . '/../../includes/header.php';
                     </label>
                 </div>
             <?php else: ?>
-                <textarea class="jawaban-item form-control" data-soal-id="<?= $soal_id ?>" rows="3" style="margin-top:12px"></textarea>
+                <textarea class="jawaban-item form-control" data-soal-id="<?= $soal_id ?>" rows="3" style="margin-top:12px" placeholder="Tulis jawaban Anda di sini..."></textarea>
             <?php endif; ?>
         </div>
         <?php endforeach; ?>
     </div>
-    <button type="button" class="btn-primary" onclick="kirimUjian()" style="width:100%;padding:15px; margin-top:20px;">Selesai & Kirim</button>
+    <button type="button" class="btn-primary" id="btnKirim" style="width:100%;padding:15px; margin-top:20px;">Selesai & Kirim</button>
 </form>
 
 <script>
 let sisaDetik = <?= $sisa_detik ?>;
 let ujianId = <?= $ujian_id ?>;
-let mkId = <?= $mk_id ?>;
-let mkIndukId = <?= $mk_induk_id ?>;
 let timerInterval;
 let isSubmitting = false;
 
@@ -124,7 +133,8 @@ function updateTimer() {
     }
     let menit = Math.floor(sisaDetik/60);
     let detik = sisaDetik%60;
-    document.getElementById('timer').innerHTML = `${menit.toString().padStart(2,'0')}:${detik.toString().padStart(2,'0')}`;
+    let timerEl = document.getElementById('timer');
+    if (timerEl) timerEl.innerHTML = `${menit.toString().padStart(2,'0')}:${detik.toString().padStart(2,'0')}`;
     sisaDetik--;
 }
 timerInterval = setInterval(updateTimer, 1000);
@@ -135,7 +145,17 @@ function kirimUjian() {
     
     let jawaban = [];
     document.querySelectorAll('.jawaban-item').forEach(el => {
-        jawaban.push({ soal_id: el.dataset.soalId, jawaban: el.value });
+        let value = '';
+        if (el.tagName === 'TEXTAREA') {
+            value = el.value;
+        } else if (el.tagName === 'INPUT' && el.type === 'radio') {
+            if (el.checked) {
+                value = el.value;
+            } else {
+                return;
+            }
+        }
+        jawaban.push({ soal_id: el.dataset.soalId, jawaban: value });
     });
     
     fetch('proses.php', {
@@ -146,92 +166,20 @@ function kirimUjian() {
         if (data.status === 'success') {
             window.location.href = 'selesai.php?id=' + ujianId;
         } else {
+            alert('Terjadi kesalahan: ' + (data.message || 'Unknown error'));
             isSubmitting = false;
         }
-    }).catch(() => {
+    }).catch(err => {
+        console.error('Error:', err);
+        alert('Terjadi kesalahan saat mengirim ujian.');
         isSubmitting = false;
     });
 }
 
-function acakUlangSoal() {
-    fetch('acak_ulang.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ujian_id: ujianId, mk_induk_id: mkIndukId })
-    }).then(res => res.json()).then(data => {
-        if (data.status === 'success' && data.soal_baru) {
-            fetch('get_soal_details.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ soal_ids: data.soal_baru })
-            }).then(res => res.json()).then(soal_data => {
-                updateSoalContainer(soal_data);
-                alert('⚠️ Soal telah diacak ulang!');
-            });
-        }
-    });
-}
-
-function updateSoalContainer(soalData) {
-    let container = document.getElementById('soal_container');
-    let html = '';
-    let no = 1;
-    
-    for (let i = 0; i < soalData.length; i++) {
-        let soal = soalData[i];
-        html += `<div class="soal-card" data-soal-id="${soal.id}" data-soal-no="${no}">`;
-        html += `<div><span class="soal-number">${no++}</span> <strong class="soal-teks">${escapeHtml(soal.teks_soal)}</strong></div>`;
-        
-        if (soal.tipe_soal === 'pg') {
-            html += `<div class="radio-group" style="margin-top: 12px; margin-left: 20px;">`;
-            html += `<label style="display:block;margin-bottom:8px;"><input type="radio" name="jawaban_${soal.id}" value="A" class="jawaban-item" data-soal-id="${soal.id}"> A. ${escapeHtml(soal.pilihan_A)}</label>`;
-            html += `<label style="display:block;margin-bottom:8px;"><input type="radio" name="jawaban_${soal.id}" value="B" class="jawaban-item" data-soal-id="${soal.id}"> B. ${escapeHtml(soal.pilihan_B)}</label>`;
-            html += `<label style="display:block;margin-bottom:8px;"><input type="radio" name="jawaban_${soal.id}" value="C" class="jawaban-item" data-soal-id="${soal.id}"> C. ${escapeHtml(soal.pilihan_C)}</label>`;
-            html += `<label style="display:block;margin-bottom:8px;"><input type="radio" name="jawaban_${soal.id}" value="D" class="jawaban-item" data-soal-id="${soal.id}"> D. ${escapeHtml(soal.pilihan_D)}</label>`;
-            html += `<label style="display:block;margin-bottom:8px;"><input type="radio" name="jawaban_${soal.id}" value="E" class="jawaban-item" data-soal-id="${soal.id}"> E. ${escapeHtml(soal.pilihan_E)}</label>`;
-            html += `</div>`;
-        } else {
-            html += `<textarea class="jawaban-item form-control" data-soal-id="${soal.id}" rows="3" style="margin-top:12px"></textarea>`;
-        }
-        html += `</div>`;
-    }
-    
-    container.innerHTML = html;
-}
-
-function escapeHtml(text) {
-    if (!text) return '';
-    let div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-let isProcessing = false;
-
-document.addEventListener('visibilitychange', function() {
-    if (document.hidden && !isProcessing) {
-        isProcessing = true;
-        
-        fetch('catat_pindah.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ujian_id: ujianId })
-        }).then(() => {
-            return fetch('get_pindah_count.php?ujian_id=' + ujianId + '&t=' + Date.now());
-        }).then(res => res.json()).then(data => {
-            let currentCount = data.count;
-            if (currentCount >= 3) {
-                alert('❌ Anda telah pindah tab sebanyak 3 kali! Ujian akan dikirim.');
-                kirimUjian();
-            } else {
-                alert(`⚠️ PERINGATAN ${currentCount}/3! Jangan pindah tab. Soal akan diacak ulang.`);
-                acakUlangSoal();
-            }
-            isProcessing = false;
-        }).catch(err => {
-            console.log('Error:', err);
-            isProcessing = false;
-        });
+document.getElementById('btnKirim').addEventListener('click', function(e) {
+    e.preventDefault();
+    if (confirm('Apakah Anda yakin ingin mengirim ujian?')) {
+        kirimUjian();
     }
 });
 </script>

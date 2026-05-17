@@ -14,7 +14,9 @@ foreach ($jawaban as $jwb) {
     $soal_id = (int)$jwb['soal_id'];
     $jawaban_mhs = mysqli_real_escape_string($conn, $jwb['jawaban']);
     
-    $soal = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM soal WHERE id=$soal_id"));
+    $result = mysqli_query($conn, "SELECT * FROM soal WHERE id = $soal_id");
+    $soal = mysqli_fetch_assoc($result);
+    
     if ($soal) {
         $kunci = $soal['kunci_jawaban'];
         $bobot = (int)$soal['bobot'];
@@ -31,7 +33,9 @@ foreach ($jawaban as $jwb) {
         }
         
         $total_skor += $skor;
-        mysqli_query($conn, "INSERT INTO jawaban (ujian_id, soal_id, jawaban_mahasiswa, skor) VALUES ($ujian_id, $soal_id, '$jawaban_mhs', $skor)");
+        
+        mysqli_query($conn, "INSERT INTO jawaban (ujian_id, soal_id, jawaban_mahasiswa, skor) 
+                             VALUES ($ujian_id, $soal_id, '$jawaban_mhs', $skor)");
     }
 }
 
