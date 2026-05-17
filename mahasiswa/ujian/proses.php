@@ -1,10 +1,11 @@
 <?php
 session_start();
-require_once __DIR__ . '/../../config/database.php'];
+require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/fungsi.php';
 
-// Set header JSON
 header('Content-Type: application/json');
+error_reporting(0);
+ini_set('display_errors', 0);
 
 $input = json_decode(file_get_contents('php://input'), true);
 
@@ -16,8 +17,8 @@ if (!$input) {
 $ujian_id = isset($input['ujian_id']) ? (int)$input['ujian_id'] : 0;
 $jawaban = isset($input['jawaban']) ? $input['jawaban'] : [];
 
-if ($ujian_id == 0 || empty($jawaban)) {
-    echo json_encode(['status' => 'error', 'message' => 'Data tidak lengkap']);
+if ($ujian_id == 0) {
+    echo json_encode(['status' => 'error', 'message' => 'ID ujian tidak valid']);
     exit();
 }
 
@@ -29,6 +30,8 @@ foreach ($jawaban as $jwb) {
     $jawaban_mhs = mysqli_real_escape_string($conn, $jwb['jawaban']);
     
     $result = mysqli_query($conn, "SELECT * FROM soal WHERE id = $soal_id");
+    if (!$result) continue;
+    
     $soal = mysqli_fetch_assoc($result);
     
     if ($soal) {
