@@ -81,7 +81,7 @@ require_once __DIR__ . '/../../includes/header.php';
 
 <div class="ujian-header">
     <span>⏰ Waktu tersisa: <span id="timer" class="timer-box"><?= floor($sisa_detik/60) . ":" . str_pad($sisa_detik%60,2,'0',STR_PAD_LEFT) ?></span></span>
-    <span class="warning-box"><i class="fas fa-exclamation-triangle"></i> Jangan pindah tab!</span>
+    <span class="warning-box"><i class="fas fa-exclamation-triangle"></i> Jangan pindah tab! Peringatan 3x = ujian dihentikan</span>
 </div>
 
 <form id="formUjian">
@@ -125,8 +125,11 @@ require_once __DIR__ . '/../../includes/header.php';
 <script>
 let sisaDetik = <?= $sisa_detik ?>;
 let ujianId = <?= $ujian_id ?>;
+let mkIndukId = <?= $mk_induk_id ?>;
 let timerInterval;
 let isSubmitting = false;
+let pindahCount = 0;
+let isProcessing = false;
 
 // Timer
 function updateTimer() {
@@ -187,6 +190,67 @@ function kirimUjian() {
     });
 }
 
+// Ambil jumlah pindah tab dari server
+function loadPindahCount() {
+    fetch('get_pindah_count.php?ujian_id=' + ujianId + '&t=' + Date.now())
+        .then(res => res.json())
+        .then(data => {
+            pindahCount = data.count || 0;
+            console.log('Pindah count awal:', pindahCount);
+        })
+        .catch(err => console.error('Error load count:', err));
+}
+
+// Simpan pindah tab ke server
+function savePindahTab() {
+    return fetch('catat_pindah.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ujian_id: ujianId })
+    }).then(res => res.json());
+}
+
+// Acak ulang soal
+function acakUlangSoal() {
+    return fetch('acak_ulang.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ujian_id: ujianId, mk_induk_id: mkIndukId })
+    }).then(res => res.json());
+}
+
+// Load awal
+loadPindahCount();
+
+// Deteksi pindah tab
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden && !isProcessing) {
+        isProcessing = true;
+        console.log('Tab pindah terdeteksi');
+        
+        savePindahTab().then(data => {
+            pindahCount = data.count || 0;
+            console.log('Pindah count baru:', pindahCount);
+            
+            if (pindahCount >= 3) {
+                alert('❌ Anda telah pindah tab sebanyak 3 kali! Ujian akan dikirim.');
+                kirimUjian();
+            } else {
+                alert(`⚠️ PERINGATAN ${pindahCount}/3! Jangan pindah tab. Soal akan diacak ulang.`);
+                acakUlangSoal().then(() => {
+                    location.reload();
+                }).catch(err => {
+                    console.error('Acak ulang error:', err);
+                });
+            }
+            isProcessing = false;
+        }).catch(err => {
+            console.error('Save pindah error:', err);
+            isProcessing = false;
+        });
+    }
+});
+
 // Tombol kirim
 document.getElementById('btnKirim').addEventListener('click', function(e) {
     e.preventDefault();
@@ -205,4 +269,4 @@ window.addEventListener('beforeunload', function(e) {
 });
 </script>
 
-<?php require_once __DIR__ . '/../../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../../includes/footer.php(); ?>
