@@ -1,12 +1,23 @@
 <?php
 session_start();
-include __DIR__ . '/../config/config.php';
-include BASE_PATH . '/includes/cek_login.php';
-include BASE_PATH . '/config/database.php';
 
+// Tentukan BASE_PATH secara manual (AMAN)
+$base_path = dirname(__DIR__, 2);  // naik 2 level dari admin/xxx/ ke root
+require_once $base_path . '/config/config.php';
+
+// Cek login
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ' . BASE_URL . '/auth/login.php');
+    exit();
+}
+
+// Cek role
 if ($_SESSION['role'] != 'admin') {
     die("Akses ditolak!");
 }
+
+// Koneksi database
+require_once BASE_PATH . '/config/database.php';
 
 $master_mk_list = mysqli_query($conn, "SELECT id, kode_mk, nama_mk FROM mata_kuliah_induk ORDER BY kode_mk");
 $kelas_list = mysqli_query($conn, "
