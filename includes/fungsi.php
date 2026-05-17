@@ -2,8 +2,7 @@
 // ======================================================
 // FILE: includes/fungsi.php
 // ======================================================
-
-include __DIR__ . '/../config/config.php';
+// HAPUS include config di sini! Fungsi ini tidak butuh BASE_URL
 
 // Fungsi menghitung similarity 2 string (Essay Argument)
 function similarity($str1, $str2) {
@@ -13,7 +12,8 @@ function similarity($str1, $str2) {
 
 // Fungsi LAMA: ambil soal berdasarkan mk_id (per kelas)
 function ambilSoalAcak($mk_id, $jumlah = 5, $conn) {
-    $query = "SELECT id FROM soal WHERE mk_id = " . intval($mk_id);
+    $mk_id = intval($mk_id);
+    $query = "SELECT id FROM soal WHERE mk_id = $mk_id";
     $result = mysqli_query($conn, $query);
     if (!$result) return [];
     
@@ -27,7 +27,8 @@ function ambilSoalAcak($mk_id, $jumlah = 5, $conn) {
 
 // Fungsi BARU: ambil soal berdasarkan mk_induk_id (master MK)
 function ambilSoalAcakInduk($mk_induk_id, $jumlah = 5, $conn) {
-    $query = "SELECT id FROM soal WHERE mk_induk_id = " . intval($mk_induk_id);
+    $mk_induk_id = intval($mk_induk_id);
+    $query = "SELECT id FROM soal WHERE mk_induk_id = $mk_induk_id";
     $result = mysqli_query($conn, $query);
     if (!$result) return [];
     
@@ -93,10 +94,5 @@ function getAllMKInduk($conn) {
         $data[] = $row;
     }
     return $data;
-}
-
-// Tambahan: fungsi untuk aman dari SQL injection
-function escapeInput($conn, $input) {
-    return mysqli_real_escape_string($conn, $input);
 }
 ?>
