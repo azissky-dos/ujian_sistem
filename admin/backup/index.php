@@ -1,12 +1,20 @@
 <?php
 session_start();
-include __DIR__ . '/../config/config.php';
-include BASE_PATH . '/includes/cek_login.php';
-include BASE_PATH . '/config/database.php';
+
+// Tentukan base_path (naik 2 level: admin/backup/ -> root)
+$base_path = dirname(__DIR__, 2);
+require_once $base_path . '/config/config.php';
+
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ' . BASE_URL . '/auth/login.php');
+    exit();
+}
 
 if ($_SESSION['role'] != 'admin') {
     die("Akses ditolak!");
 }
+
+require_once BASE_PATH . '/config/database.php';
 
 $backup_dir = BASE_PATH . '/backup/';
 $success = '';
@@ -140,7 +148,7 @@ foreach ($backup_files as $file) {
 }
 rsort($valid_backups);
 
-include BASE_PATH . '/includes/header.php';
+require_once BASE_PATH . '/includes/header.php';
 ?>
 
 <div class="page-header">
@@ -209,4 +217,4 @@ include BASE_PATH . '/includes/header.php';
     </table>
 </div>
 
-<?php include BASE_PATH . '/includes/footer.php'; ?>
+<?php require_once BASE_PATH . '/includes/footer.php'; ?>
