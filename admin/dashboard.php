@@ -11,7 +11,7 @@ if ($_SESSION['role'] != 'admin') {
     die("Akses ditolak!");
 }
 
-require_once BASE_PATH . '/config/database.php';
+require_once __DIR__ . '/../config/database.php';
 
 $total_admin_dosen = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM users WHERE role IN ('admin','dosen')"))['total'];
 $total_mahasiswa = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM users WHERE role='mahasiswa'"))['total'];
