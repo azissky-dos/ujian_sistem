@@ -5,12 +5,15 @@ if (!isset($_SESSION['user_id'])) return;
 // Deteksi BASE_URL secara otomatis
 $base_url = '';
 
-// Cek apakah di localhost
+// Cek apakah di localhost (XAMPP)
 if ($_SERVER['SERVER_NAME'] == 'localhost' || $_SERVER['SERVER_NAME'] == '127.0.0.1') {
     // Di local, pakai folder Ujian_System
     $base_url = '/Ujian_System';
 }
-// Di Railway, $base_url tetap kosong
+// Di Railway, $base_url tetap kosong ('')
+
+// Jika perlu debug, buka komentar baris di bawah
+// error_log("BASE_URL: " . $base_url);
 ?>
 <aside class="sidebar glass-dark">
     <div class="sidebar-header">
