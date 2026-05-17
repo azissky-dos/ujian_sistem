@@ -2,7 +2,14 @@
 include __DIR__ . '/../config/config.php';
 include BASE_PATH . '/config/database.php';
 
-$kelas_id = $_POST['kelas_id'];
+header('Content-Type: application/json');
+
+if (!isset($_POST['kelas_id']) || empty($_POST['kelas_id'])) {
+    echo json_encode([]);
+    exit();
+}
+
+$kelas_id = intval($_POST['kelas_id']);
 
 // Ambil MK Induk yang tersedia di kelas tersebut
 $query = "SELECT DISTINCT mki.id, mki.kode_mk, mki.nama_mk
@@ -10,13 +17,22 @@ $query = "SELECT DISTINCT mki.id, mki.kode_mk, mki.nama_mk
           JOIN mata_kuliah mk ON mk.mk_induk_id = mki.id
           WHERE mk.kelas_id = $kelas_id
           ORDER BY mki.kode_mk";
+          
 $result = mysqli_query($conn, $query);
+
+if (!$result) {
+    echo json_encode(['error' => mysqli_error($conn)]);
+    exit();
+}
 
 $mk_list = [];
 while($row = mysqli_fetch_assoc($result)) {
-    $mk_list[] = $row;
+    $mk_list[] = [
+        'id' => $row['id'],
+        'kode_mk' => $row['kode_mk'],
+        'nama_mk' => $row['nama_mk']
+    ];
 }
 
-header('Content-Type: application/json');
 echo json_encode($mk_list);
 ?>

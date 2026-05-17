@@ -397,11 +397,12 @@ $(document).ready(function() {
             $('#mk_checklist').html('<div class="alert info"><i class="fas fa-spinner fa-spin"></i> Memuat data mata kuliah...</div>');
             
             $.ajax({
-                url: '<?= BASE_URL ?>/auth/get_mk_by_kelas.php',
+                url: 'get_mk_by_kelas.php',  // ← PAKAI PATH RELATIF!
                 type: 'POST',
                 data: {kelas_id: kelas_id},
                 dataType: 'json',
                 success: function(data) {
+                    console.log('Data received:', data); // Untuk debug
                     var html = '';
                     if(data.length > 0) {
                         html += '<div class="select-all">';
@@ -426,8 +427,9 @@ $(document).ready(function() {
                     });
                 },
                 error: function(xhr, status, error) {
-                    console.error('AJAX Error:', error);
-                    $('#mk_checklist').html('<div class="alert error"><i class="fas fa-exclamation-circle"></i> Gagal memuat data mata kuliah. Silakan coba lagi.</div>');
+                    console.error('AJAX Error:', status, error);
+                    console.log('Response:', xhr.responseText);
+                    $('#mk_checklist').html('<div class="alert error"><i class="fas fa-exclamation-circle"></i> Gagal memuat data mata kuliah. Silakan coba lagi. Error: ' + status + '</div>');
                 }
             });
         } else {
