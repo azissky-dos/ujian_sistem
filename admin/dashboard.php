@@ -19,7 +19,7 @@ $total_kelas = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total 
 $total_mk = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM mata_kuliah"))['total'];
 $total_soal = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM soal"))['total'];
 
-require_once BASE_PATH . '/includes/header.php';
+require_once __DIR__ . '/../includes/header.php';
 ?>
 
 <div class="page-header">
@@ -74,4 +74,4 @@ require_once BASE_PATH . '/includes/header.php';
     </div>
 </div>
 
-<?php require_once BASE_PATH . '/includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>
