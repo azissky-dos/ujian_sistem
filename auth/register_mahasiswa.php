@@ -384,7 +384,7 @@ if (isset($_POST['register'])) {
         </form>
         
         <div class="auth-footer">
-            <p>Sudah punya akun? <a href="<?= BASE_URL ?>/auth/login.php">Login disini</a></p>
+            <p>Sudah punya akun? <a href="login.php">Login disini</a></p>
         </div>
     </div>
 </div>
