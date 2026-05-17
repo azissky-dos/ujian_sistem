@@ -2,18 +2,14 @@
 // includes/navbar.php
 if (!isset($_SESSION['user_id'])) return;
 
-// Deteksi BASE_URL secara otomatis
-$base_url = '';
+// Deteksi environment langsung disini
+$is_railway = (getenv('RAILWAY_ENVIRONMENT') !== false);
 
-// Cek apakah di localhost (XAMPP)
-if ($_SERVER['SERVER_NAME'] == 'localhost' || $_SERVER['SERVER_NAME'] == '127.0.0.1') {
-    // Di local, pakai folder Ujian_System
-    $base_url = '/Ujian_System';
+if ($is_railway) {
+    $base_url = '';  // Railway: root domain
+} else {
+    $base_url = '/Ujian_System';  // Local: folder project
 }
-// Di Railway, $base_url tetap kosong ('')
-
-// Jika perlu debug, buka komentar baris di bawah
-// error_log("BASE_URL: " . $base_url);
 ?>
 <aside class="sidebar glass-dark">
     <div class="sidebar-header">
