@@ -128,7 +128,6 @@ let ujianId = <?= $ujian_id ?>;
 let mkIndukId = <?= $mk_induk_id ?>;
 let timerInterval;
 let isSubmitting = false;
-let pindahCount = 0;
 let isProcessing = false;
 
 // Timer
@@ -190,64 +189,44 @@ function kirimUjian() {
     });
 }
 
-// Ambil jumlah pindah tab dari server
-function loadPindahCount() {
-    fetch('get_pindah_count.php?ujian_id=' + ujianId + '&t=' + Date.now())
-        .then(res => res.json())
-        .then(data => {
-            pindahCount = data.count || 0;
-            console.log('Pindah count awal:', pindahCount);
-        })
-        .catch(err => console.error('Error load count:', err));
-}
-
-// Simpan pindah tab ke server
-function savePindahTab() {
-    return fetch('catat_pindah.php', {
+// Fungsi catat pindah dan proses acak
+function prosesPindah() {
+    fetch('catat_pindah.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ujian_id: ujianId })
-    }).then(res => res.json());
+    })
+    .then(res => res.json())
+    .then(data => {
+        let pindahCount = data.count || 0;
+        
+        if (pindahCount >= 3) {
+            alert('❌ Anda telah pindah tab sebanyak 3 kali! Ujian akan dikirim.');
+            kirimUjian();
+        } else {
+            alert(`⚠️ PERINGATAN ${pindahCount}/3! Jangan pindah tab. Soal akan diacak ulang.`);
+            // Acak soal
+            fetch('acak_ulang.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ujian_id: ujianId, mk_induk_id: mkIndukId })
+            })
+            .then(res => res.json())
+            .then(() => {
+                location.reload();
+            })
+            .catch(err => console.error('Acak error:', err));
+        }
+    })
+    .catch(err => console.error('Error:', err));
 }
-
-// Acak ulang soal
-function acakUlangSoal() {
-    return fetch('acak_ulang.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ujian_id: ujianId, mk_induk_id: mkIndukId })
-    }).then(res => res.json());
-}
-
-// Load awal
-loadPindahCount();
 
 // Deteksi pindah tab
 document.addEventListener('visibilitychange', function() {
     if (document.hidden && !isProcessing) {
         isProcessing = true;
-        console.log('Tab pindah terdeteksi');
-        
-        savePindahTab().then(data => {
-            pindahCount = data.count || 0;
-            console.log('Pindah count baru:', pindahCount);
-            
-            if (pindahCount >= 3) {
-                alert('❌ Anda telah pindah tab sebanyak 3 kali! Ujian akan dikirim.');
-                kirimUjian();
-            } else {
-                alert(`⚠️ PERINGATAN ${pindahCount}/3! Jangan pindah tab. Soal akan diacak ulang.`);
-                acakUlangSoal().then(() => {
-                    location.reload();
-                }).catch(err => {
-                    console.error('Acak ulang error:', err);
-                });
-            }
-            isProcessing = false;
-        }).catch(err => {
-            console.error('Save pindah error:', err);
-            isProcessing = false;
-        });
+        prosesPindah();
+        setTimeout(() => { isProcessing = false; }, 2000);
     }
 });
 
@@ -258,15 +237,6 @@ document.getElementById('btnKirim').addEventListener('click', function(e) {
         kirimUjian();
     }
 });
-
-// Peringatan sebelum keluar
-window.addEventListener('beforeunload', function(e) {
-    if (sisaDetik > 0 && !isSubmitting) {
-        e.preventDefault();
-        e.returnValue = 'Ujian belum selesai! Yakin ingin keluar?';
-        return 'Ujian belum selesai! Yakin ingin keluar?';
-    }
-});
 </script>
 
-<?php require_once __DIR__ . '/../../includes/footer.php()'; ?>
+<?php require_once __DIR__ . '/../../includes/footer.php'; ?>
