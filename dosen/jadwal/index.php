@@ -23,40 +23,51 @@ if ($edit_id > 0) {
         JOIN kelas k ON j.kelas_id = k.id
         WHERE j.id = $edit_id AND k.dosen_id = $dosen_id
     ");
-    $edit_data = mysqli_fetch_assoc($edit_query);
+    if ($edit_query && mysqli_num_rows($edit_query) > 0) {
+        $edit_data = mysqli_fetch_assoc($edit_query);
+    } else {
+        $edit_id = 0; // Reset jika data tidak valid
+    }
 }
 
 // Handle tambah/update jadwal
 if (isset($_POST['simpan'])) {
-    $mk_induk_id = $_POST['mk_induk_id'];
-    $kelas_id = $_POST['kelas_id'];
-    $tanggal_mulai = $_POST['tanggal_mulai'] . ' ' . $_POST['waktu_mulai'];
-    $tanggal_selesai = $_POST['tanggal_selesai'] . ' ' . $_POST['waktu_selesai'];
-    $durasi_menit = $_POST['durasi_menit'];
+    // Validasi input
+    $mk_induk_id = isset($_POST['mk_induk_id']) ? (int)$_POST['mk_induk_id'] : 0;
+    $kelas_id = isset($_POST['kelas_id']) ? (int)$_POST['kelas_id'] : 0;
+    $tanggal_mulai = mysqli_real_escape_string($conn, $_POST['tanggal_mulai'] . ' ' . $_POST['waktu_mulai']);
+    $tanggal_selesai = mysqli_real_escape_string($conn, $_POST['tanggal_selesai'] . ' ' . $_POST['waktu_selesai']);
+    $durasi_menit = isset($_POST['durasi_menit']) ? (int)$_POST['durasi_menit'] : 60;
     
-    if ($edit_id > 0) {
+    if ($edit_id > 0 && $edit_data) {
         // Update jadwal
         $query = "UPDATE jadwal_ujian SET 
                   tanggal_mulai = '$tanggal_mulai', 
                   tanggal_selesai = '$tanggal_selesai', 
                   durasi_menit = $durasi_menit 
                   WHERE id = $edit_id";
-        mysqli_query($conn, $query);
-        $success = "Jadwal ujian berhasil diupdate!";
+        if (mysqli_query($conn, $query)) {
+            $success = "Jadwal ujian berhasil diupdate!";
+        } else {
+            $error = "Gagal update: " . mysqli_error($conn);
+        }
     } else {
         // Insert baru
         $cek = mysqli_query($conn, "SELECT id FROM jadwal_ujian WHERE mk_induk_id = $mk_induk_id AND kelas_id = $kelas_id");
         if (mysqli_num_rows($cek) > 0) {
             $error = "Jadwal untuk MK dan kelas ini sudah ada! Silakan edit jika ingin mengubah.";
         } else {
-            $query = "INSERT INTO jadwal_ujian (mk_induk_id, kelas_id, tanggal_mulai, tanggal_selesai, durasi_menit) 
-                      VALUES ($mk_induk_id, $kelas_id, '$tanggal_mulai', '$tanggal_selesai', $durasi_menit)";
-            mysqli_query($conn, $query);
-            $success = "Jadwal ujian berhasil ditambahkan!";
+            $query = "INSERT INTO jadwal_ujian (mk_induk_id, kelas_id, tanggal_mulai, tanggal_selesai, durasi_menit, is_active) 
+                      VALUES ($mk_induk_id, $kelas_id, '$tanggal_mulai', '$tanggal_selesai', $durasi_menit, 1)";
+            if (mysqli_query($conn, $query)) {
+                $success = "Jadwal ujian berhasil ditambahkan!";
+            } else {
+                $error = "Gagal insert: " . mysqli_error($conn);
+            }
         }
     }
     
-    // Redirect setelah sukses untuk menghilangkan parameter edit di URL
+    // Redirect setelah sukses
     if (empty($error)) {
         header('Location: index.php');
         exit();
@@ -65,9 +76,11 @@ if (isset($_POST['simpan'])) {
 
 // Handle hapus jadwal
 if (isset($_GET['hapus'])) {
-    $id = $_GET['hapus'];
-    mysqli_query($conn, "DELETE FROM jadwal_ujian WHERE id = $id");
+    $hapus_id = (int)$_GET['hapus'];
+    mysqli_query($conn, "DELETE FROM jadwal_ujian WHERE id = $hapus_id");
     $success = "Jadwal ujian berhasil dihapus!";
+    header('Location: index.php');
+    exit();
 }
 
 // Ambil daftar MK Induk yang diajarkan dosen
@@ -99,10 +112,10 @@ include '../../includes/header.php';
 </div>
 
 <?php if($success): ?>
-    <div class="alert success"><?= $success ?></div>
+    <div class="alert success"><?= htmlspecialchars($success) ?></div>
 <?php endif; ?>
 <?php if($error): ?>
-    <div class="alert error"><?= $error ?></div>
+    <div class="alert error"><?= htmlspecialchars($error) ?></div>
 <?php endif; ?>
 
 <div class="dashboard-grid">
@@ -126,7 +139,10 @@ include '../../includes/header.php';
                 <label>Pilih Mata Kuliah</label>
                 <select name="mk_induk_id" id="mk_induk_id" class="form-control" <?= $edit_id > 0 ? 'disabled' : 'required' ?>>
                     <option value="">-- Pilih MK --</option>
-                    <?php while($mk = mysqli_fetch_assoc($mk_list)): ?>
+                    <?php 
+                    mysqli_data_seek($mk_list, 0);
+                    while($mk = mysqli_fetch_assoc($mk_list)): 
+                    ?>
                         <option value="<?= $mk['id'] ?>" 
                             <?= ($edit_data && $edit_data['mk_induk_id'] == $mk['id']) ? 'selected' : '' ?>>
                             <?= htmlspecialchars($mk['kode_mk']) ?> - <?= htmlspecialchars($mk['nama_mk']) ?>
@@ -196,64 +212,66 @@ include '../../includes/header.php';
     <!-- Tabel Kanan: Daftar Jadwal -->
     <div class="card-modern">
         <h3><i class="fas fa-list"></i> Daftar Jadwal Ujian</h3>
-        <table class="table-modern">
-            <thead>
-                <tr>
-                    <th>MK</th>
-                    <th>Kelas</th>
-                    <th>Mulai</th>
-                    <th>Selesai</th>
-                    <th>Durasi</th>
-                    <th>Status</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if(mysqli_num_rows($jadwal_list) > 0): ?>
-                    <?php while($j = mysqli_fetch_assoc($jadwal_list)): 
-                        $now = new DateTime();
-                        $mulai = new DateTime($j['tanggal_mulai']);
-                        $selesai = new DateTime($j['tanggal_selesai']);
-                        
-                        if ($now < $mulai) {
-                            $status = '<span class="badge badge-warning">⏳ Akan Datang</span>';
-                        } elseif ($now > $selesai) {
-                            $status = '<span class="badge badge-danger">❌ Berakhir</span>';
-                        } else {
-                            $status = '<span class="badge badge-success">✅ Berlangsung</span>';
-                        }
-                    ?>
+        <div style="overflow-x: auto;">
+            <table class="table-modern">
+                <thead>
                     <tr>
-                        <td><?= htmlspecialchars($j['kode_mk']) ?> </td>
-                        <td><?= htmlspecialchars($j['nama_kelas']) ?> </td>
-                        <td><?= date('d/m/Y H:i', strtotime($j['tanggal_mulai'])) ?> </td>
-                        <td><?= date('d/m/Y H:i', strtotime($j['tanggal_selesai'])) ?> </td>
-                        <td><?= $j['durasi_menit'] ?> menit </td>
-                        <td><?= $status ?> </td>
-                        <td>
-                            <a href="?edit=<?= $j['id'] ?>" class="btn-primary" style="padding:4px 8px;font-size:12px;">Edit</a>
-                            <a href="?hapus=<?= $j['id'] ?>" class="btn-danger" style="padding:4px 8px;font-size:12px;" onclick="return confirm('Yakin hapus jadwal ini?')">Hapus</a>
-                         ﹏
+                        <th>MK</th>
+                        <th>Kelas</th>
+                        <th>Mulai</th>
+                        <th>Selesai</th>
+                        <th>Durasi</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
                     </tr>
-                    <?php endwhile; ?>
-                <?php else: ?>
-                    <tr>
-                        <td colspan="7" style="text-align:center">Belum ada jadwal ujian ﹏
-                    </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <?php if(mysqli_num_rows($jadwal_list) > 0): ?>
+                        <?php while($j = mysqli_fetch_assoc($jadwal_list)): 
+                            $now = new DateTime();
+                            $mulai = new DateTime($j['tanggal_mulai']);
+                            $selesai = new DateTime($j['tanggal_selesai']);
+                            
+                            if ($now < $mulai) {
+                                $status = '<span class="badge badge-warning" style="background:#f59e0b; color:white; padding:4px 12px; border-radius:20px;">⏳ Akan Datang</span>';
+                            } elseif ($now > $selesai) {
+                                $status = '<span class="badge badge-danger" style="background:#dc2626; color:white; padding:4px 12px; border-radius:20px;">❌ Berakhir</span>';
+                            } else {
+                                $status = '<span class="badge badge-success" style="background:#10b981; color:white; padding:4px 12px; border-radius:20px;">✅ Berlangsung</span>';
+                            }
+                        ?>
+                        <tr>
+                            <td><?= htmlspecialchars($j['kode_mk']) ?></td>
+                            <td><?= htmlspecialchars($j['nama_kelas']) ?></td>
+                            <td><?= date('d/m/Y H:i', strtotime($j['tanggal_mulai'])) ?></td>
+                            <td><?= date('d/m/Y H:i', strtotime($j['tanggal_selesai'])) ?></td>
+                            <td><?= $j['durasi_menit'] ?> menit</td>
+                            <td><?= $status ?></td>
+                            <td>
+                                <a href="?edit=<?= $j['id'] ?>" class="btn-primary" style="padding:4px 8px;font-size:12px;">Edit</a>
+                                <a href="?hapus=<?= $j['id'] ?>" class="btn-danger" style="padding:4px 8px;font-size:12px;" onclick="return confirm('Yakin hapus jadwal ini?')">Hapus</a>
+                            </td>
+                        </tr>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="7" style="text-align:center">Belum ada jadwal ujian</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(document).ready(function() {
-    // Hanya jalankan AJAX jika bukan mode edit
     <?php if($edit_id == 0): ?>
     $('#mk_induk_id').change(function() {
         var mk_induk_id = $(this).val();
         if (mk_induk_id) {
+            $('#kelas_id').html('<option value="">Loading...</option>');
             $.ajax({
                 url: 'get_kelas_by_mk.php',
                 type: 'POST',
@@ -263,7 +281,7 @@ $(document).ready(function() {
                     var html = '<option value="">-- Pilih Kelas --</option>';
                     if (data.length > 0) {
                         for (var i = 0; i < data.length; i++) {
-                            html += '<option value="' + data[i].id + '">' + data[i].nama_kelas + ' (Dosen: ' + data[i].dosen_nama + ')</option>';
+                            html += '<option value="' + data[i].id + '">' + data[i].nama_kelas + '</option>';
                         }
                         $('#kelas_id').prop('disabled', false);
                     } else {
@@ -271,6 +289,10 @@ $(document).ready(function() {
                         $('#kelas_id').prop('disabled', true);
                     }
                     $('#kelas_id').html(html);
+                },
+                error: function() {
+                    $('#kelas_id').html('<option value="">-- Gagal load data --</option>');
+                    $('#kelas_id').prop('disabled', true);
                 }
             });
         } else {
