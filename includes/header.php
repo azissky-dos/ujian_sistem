@@ -38,15 +38,7 @@
             transition: left 0.3s ease;
         }
         
-        /* Wrapper untuk scrollable content */
-        .sidebar-content {
-            flex: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            -webkit-overflow-scrolling: touch;
-        }
-        
+        /* Header - tetap di atas */
         .sidebar-header { 
             padding: 24px 20px; 
             border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -57,9 +49,12 @@
         .logo i { color: #818cf8; font-size: 28px; }
         .logo .dot { color: #818cf8; }
         
+        /* NAVIGASI - BISA SCROLL */
         .sidebar-nav { 
-            flex: 1; 
+            flex: 1;
+            overflow-y: auto;
             padding: 20px 0;
+            -webkit-overflow-scrolling: touch;
         }
         
         .nav-item { 
@@ -77,6 +72,7 @@
         .nav-item:hover { background: rgba(129,140,248,0.2); color: white; }
         .nav-item.active { background: linear-gradient(135deg, #818cf8, #4f46e5); color: white; }
         
+        /* Footer - tetap di bawah */
         .sidebar-footer { 
             padding: 20px; 
             border-top: 1px solid rgba(255,255,255,0.1);
@@ -269,7 +265,7 @@
         
         /* ========== RESPONSIVE DESIGN ========== */
         
-        /* Tablet (max-width: 1024px) */
+        /* Tablet */
         @media (max-width: 1024px) {
             .sidebar { width: 240px; }
             .main-content.with-sidebar { margin-left: 240px; }
@@ -279,7 +275,7 @@
             .stat-info h3 { font-size: 24px; }
         }
         
-        /* Mobile Landscape (max-width: 768px) */
+        /* Mobile */
         @media (max-width: 768px) {
             .sidebar {
                 left: -280px;
@@ -330,40 +326,18 @@
             
             .ujian-header { flex-direction: column; text-align: center; }
             .timer-box { font-size: 20px; }
-            
-            /* Sidebar footer mobile */
-            .sidebar-footer {
-                position: sticky;
-                bottom: 0;
-                background: rgba(15, 23, 42, 0.98);
-            }
-            
-            .user-info {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .logout-btn {
-                margin-top: 5px;
-            }
         }
         
-        /* Mobile Portrait (max-width: 480px) */
+        /* Mobile Portrait */
         @media (max-width: 480px) {
             .content-container { padding: 50px 12px 12px 12px; }
-            
             .page-title { font-size: 22px; }
             .page-subtitle { font-size: 12px; }
-            
             .stat-card { padding: 12px; }
             .stat-info h3 { font-size: 22px; }
-            .stat-info p { font-size: 12px; }
             .stat-icon { width: 45px; height: 45px; }
             .stat-icon i { font-size: 20px; }
-            
             .card-modern { padding: 16px; }
-            .card-modern h3 { font-size: 16px; }
-            
             .btn-primary, .btn-outline { padding: 8px 16px; font-size: 14px; }
         }
     </style>
