@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         /* ====================================================== */
-        /* CSS GLOBAL - INTERNAL STYLE (PASTI TERLOAD) */
+        /* CSS GLOBAL - INTERNAL STYLE */
         /* ====================================================== */
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -24,44 +24,90 @@
         
         /* ========== SIDEBAR ========== */
         .sidebar { 
-            position: fixed; left: 0; top: 0; width: 280px; height: 100vh; 
-            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); 
+            position: fixed; 
+            left: 0; 
+            top: 0; 
+            width: 280px; 
+            height: 100vh; 
+            background: rgba(15, 23, 42, 0.95); 
+            backdrop-filter: blur(10px); 
             border-right: 1px solid rgba(255,255,255,0.1); 
-            display: flex; flex-direction: column; z-index: 100; 
+            display: flex; 
+            flex-direction: column; 
+            z-index: 100; 
             transition: left 0.3s ease;
         }
         
-        .sidebar-header { padding: 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        /* Wrapper untuk scrollable content */
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .sidebar-header { 
+            padding: 24px 20px; 
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            flex-shrink: 0;
+        }
         
         .logo { display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: 700; color: white; }
         .logo i { color: #818cf8; font-size: 28px; }
         .logo .dot { color: #818cf8; }
         
-        .sidebar-nav { flex: 1; padding: 20px 0; overflow-y: auto; }
+        .sidebar-nav { 
+            flex: 1; 
+            padding: 20px 0;
+        }
         
         .nav-item { 
-            display: flex; align-items: center; gap: 12px; padding: 12px 20px; 
-            color: rgba(255,255,255,0.7); text-decoration: none; 
-            transition: all 0.3s ease; margin: 4px 12px; border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            padding: 12px 20px; 
+            color: rgba(255,255,255,0.7); 
+            text-decoration: none; 
+            transition: all 0.3s ease; 
+            margin: 4px 12px; 
+            border-radius: 12px; 
         }
         .nav-item i { width: 24px; font-size: 18px; }
         .nav-item:hover { background: rgba(129,140,248,0.2); color: white; }
         .nav-item.active { background: linear-gradient(135deg, #818cf8, #4f46e5); color: white; }
         
-        .sidebar-footer { padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-footer { 
+            padding: 20px; 
+            border-top: 1px solid rgba(255,255,255,0.1);
+            flex-shrink: 0;
+            background: rgba(15, 23, 42, 0.98);
+        }
         
         .user-info { 
-            display: flex; align-items: center; gap: 12px; padding: 12px; 
-            background: rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 12px; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            padding: 12px; 
+            background: rgba(255,255,255,0.05); 
+            border-radius: 12px; 
+            margin-bottom: 12px; 
         }
         .user-info i { font-size: 32px; color: #818cf8; }
         .user-name { font-weight: 600; color: white; font-size: 14px; }
         .user-role { font-size: 12px; color: rgba(255,255,255,0.5); text-transform: capitalize; }
         
         .logout-btn { 
-            display: flex; align-items: center; gap: 10px; padding: 10px 12px; 
-            background: rgba(239,68,68,0.2); color: #f87171; text-decoration: none; 
-            border-radius: 10px; transition: all 0.3s ease; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            padding: 10px 12px; 
+            background: rgba(239,68,68,0.2); 
+            color: #f87171; 
+            text-decoration: none; 
+            border-radius: 10px; 
+            transition: all 0.3s ease; 
+            justify-content: center;
         }
         .logout-btn:hover { background: rgba(239,68,68,0.4); color: white; }
         
@@ -236,12 +282,8 @@
         /* Mobile Landscape (max-width: 768px) */
         @media (max-width: 768px) {
             .sidebar {
-                position: fixed;
                 left: -280px;
-                top: 0;
                 width: 280px;
-                height: 100vh;
-                z-index: 1000;
             }
             .sidebar.show { left: 0; }
             
@@ -278,9 +320,6 @@
             
             .dashboard-grid, .menu-grid { grid-template-columns: 1fr; }
             
-            .stat-card { padding: 16px; }
-            .stat-info h3 { font-size: 28px; }
-            
             .card-modern { overflow-x: auto; }
             .table-modern { min-width: 600px; }
             
@@ -291,6 +330,22 @@
             
             .ujian-header { flex-direction: column; text-align: center; }
             .timer-box { font-size: 20px; }
+            
+            /* Sidebar footer mobile */
+            .sidebar-footer {
+                position: sticky;
+                bottom: 0;
+                background: rgba(15, 23, 42, 0.98);
+            }
+            
+            .user-info {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .logout-btn {
+                margin-top: 5px;
+            }
         }
         
         /* Mobile Portrait (max-width: 480px) */
@@ -310,9 +365,6 @@
             .card-modern h3 { font-size: 16px; }
             
             .btn-primary, .btn-outline { padding: 8px 16px; font-size: 14px; }
-            
-            .form-group label { font-size: 13px; }
-            .form-control { padding: 10px 12px; font-size: 14px; }
         }
     </style>
 </head>
