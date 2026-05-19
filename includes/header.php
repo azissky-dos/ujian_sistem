@@ -25,11 +25,11 @@
         /* ========== SIDEBAR ========== */
         /* Desktop: sidebar absolute agar ikut scroll dengan halaman */
         .sidebar { 
-            position: absolute;     /* ikut scroll dengan halaman */
+            position: absolute;
             left: 0; 
             top: 0; 
             width: 280px; 
-            min-height: 100vh;      /* minimal setinggi layar */
+            min-height: 100vh;
             background: rgba(15, 23, 42, 0.95); 
             backdrop-filter: blur(10px); 
             border-right: 1px solid rgba(255,255,255,0.1); 
@@ -273,25 +273,23 @@
         
         /* ========== MOBILE (max-width: 768px) ========== */
         @media (max-width: 768px) {
-            /* Sidebar: block agar bisa discroll */
             .sidebar {
                 position: fixed;
                 left: -280px;
                 top: 0;
                 width: 280px;
                 height: 100vh;
-                display: block;                 /* UBAH: dari flex ke block */
-                overflow-y: auto;               /* SCROLL VERTICAL */
+                display: block;
+                overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
-                background: rgba(15, 23, 42, 0.95);
+                background: rgba(15, 23, 42, 0.98);
                 backdrop-filter: blur(10px);
                 border-right: 1px solid rgba(255,255,255,0.1);
-                z-index: 100;
+                z-index: 1002;
                 transition: left 0.3s ease;
             }
             .sidebar.show { left: 0; }
             
-            /* Pastikan semua bagian sidebar bisa discroll */
             .sidebar-header,
             .sidebar-nav,
             .sidebar-footer {
@@ -315,6 +313,7 @@
                 padding: 12px 20px;
                 margin: 4px 12px;
                 border-radius: 12px;
+                pointer-events: auto;
             }
             
             .sidebar-footer {
@@ -330,7 +329,7 @@
                 position: fixed;
                 top: 15px;
                 left: 15px;
-                z-index: 1001;
+                z-index: 1003;
                 background: #4f46e5;
                 color: white;
                 border: none;
@@ -348,7 +347,7 @@
                 width: 100%;
                 height: 100%;
                 background: rgba(0,0,0,0.5);
-                z-index: 999;
+                z-index: 1001;
             }
             .sidebar-overlay.show { display: block; }
             
