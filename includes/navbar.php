@@ -33,6 +33,7 @@ if ($is_railway) {
         <?php elseif ($_SESSION['role'] == 'dosen'): ?>
             <a href="<?= $base_url ?>/dosen/dashboard.php" class="nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
             <a href="<?= $base_url ?>/dosen/kelas/index.php" class="nav-item"><i class="fas fa-school"></i> Kelas Saya</a>
+            <a href="<?= $base_url ?>/dosen/jadwal/index.php" class="nav-item"><i class="fas fa-clipboard-list"></i> Jadwal Ujian</a>
             <a href="<?= $base_url ?>/dosen/matakuliah/index.php" class="nav-item"><i class="fas fa-book"></i> Mata Kuliah</a>
             <a href="<?= $base_url ?>/dosen/mahasiswa_terdaftar/index.php" class="nav-item"><i class="fas fa-user-graduate"></i> Mahasiswa</a>
             <a href="<?= $base_url ?>/dosen/reset_password/index.php" class="nav-item"><i class="fas fa-key"></i> Reset Password Mhs</a>
