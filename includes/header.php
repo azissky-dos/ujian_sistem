@@ -23,13 +23,13 @@
         }
         
         /* ========== SIDEBAR ========== */
-        /* PERBAIKAN: position: absolute agar sidebar ikut scroll dengan halaman */
+        /* Desktop: sidebar absolute agar ikut scroll dengan halaman */
         .sidebar { 
-            position: absolute;     /* ← UBAH: dari fixed ke absolute */
+            position: absolute;     /* ikut scroll dengan halaman */
             left: 0; 
             top: 0; 
             width: 280px; 
-            min-height: 100vh;      /* ← UBAH: dari height ke min-height */
+            min-height: 100vh;      /* minimal setinggi layar */
             background: rgba(15, 23, 42, 0.95); 
             backdrop-filter: blur(10px); 
             border-right: 1px solid rgba(255,255,255,0.1); 
@@ -261,7 +261,7 @@
         
         /* ========== RESPONSIVE DESIGN ========== */
         
-        /* Tablet */
+        /* Tablet (max-width: 1024px) */
         @media (max-width: 1024px) {
             .sidebar { width: 240px; }
             .main-content.with-sidebar { margin-left: 240px; }
@@ -271,7 +271,7 @@
             .stat-info h3 { font-size: 24px; }
         }
         
-        /* Mobile */
+        /* Mobile (max-width: 768px) */
         @media (max-width: 768px) {
             .sidebar {
                 position: fixed;
@@ -279,6 +279,8 @@
                 top: 0;
                 width: 280px;
                 height: 100vh;
+                overflow-y: auto;           /* SIDEBAR BISA DISCROLL */
+                -webkit-overflow-scrolling: touch;
                 min-height: auto;
             }
             .sidebar.show { left: 0; }
@@ -328,7 +330,7 @@
             .timer-box { font-size: 20px; }
         }
         
-        /* Mobile Portrait */
+        /* Mobile Portrait (max-width: 480px) */
         @media (max-width: 480px) {
             .content-container { padding: 50px 12px 12px 12px; }
             .page-title { font-size: 22px; }
