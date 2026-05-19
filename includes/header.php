@@ -271,19 +271,57 @@
             .stat-info h3 { font-size: 24px; }
         }
         
-        /* Mobile (max-width: 768px) */
+        /* ========== MOBILE (max-width: 768px) ========== */
         @media (max-width: 768px) {
+            /* Sidebar: block agar bisa discroll */
             .sidebar {
                 position: fixed;
                 left: -280px;
                 top: 0;
                 width: 280px;
                 height: 100vh;
-                overflow-y: auto;           /* SIDEBAR BISA DISCROLL */
+                display: block;                 /* UBAH: dari flex ke block */
+                overflow-y: auto;               /* SCROLL VERTICAL */
                 -webkit-overflow-scrolling: touch;
-                min-height: auto;
+                background: rgba(15, 23, 42, 0.95);
+                backdrop-filter: blur(10px);
+                border-right: 1px solid rgba(255,255,255,0.1);
+                z-index: 100;
+                transition: left 0.3s ease;
             }
             .sidebar.show { left: 0; }
+            
+            /* Pastikan semua bagian sidebar bisa discroll */
+            .sidebar-header,
+            .sidebar-nav,
+            .sidebar-footer {
+                display: block;
+                width: 100%;
+            }
+            
+            .sidebar-header {
+                padding: 24px 20px;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+            }
+            
+            .sidebar-nav {
+                padding: 20px 0;
+            }
+            
+            .nav-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 12px 20px;
+                margin: 4px 12px;
+                border-radius: 12px;
+            }
+            
+            .sidebar-footer {
+                padding: 20px;
+                border-top: 1px solid rgba(255,255,255,0.1);
+                background: rgba(15, 23, 42, 0.98);
+            }
             
             .main-content.with-sidebar { margin-left: 0; }
             
