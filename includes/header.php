@@ -23,12 +23,13 @@
         }
         
         /* ========== SIDEBAR ========== */
+        /* PERBAIKAN: position: absolute agar sidebar ikut scroll dengan halaman */
         .sidebar { 
-            position: fixed; 
+            position: absolute;     /* ← UBAH: dari fixed ke absolute */
             left: 0; 
             top: 0; 
             width: 280px; 
-            height: 100vh; 
+            min-height: 100vh;      /* ← UBAH: dari height ke min-height */
             background: rgba(15, 23, 42, 0.95); 
             backdrop-filter: blur(10px); 
             border-right: 1px solid rgba(255,255,255,0.1); 
@@ -38,7 +39,6 @@
             transition: left 0.3s ease;
         }
         
-        /* Header - tetap di atas */
         .sidebar-header { 
             padding: 24px 20px; 
             border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -49,12 +49,9 @@
         .logo i { color: #818cf8; font-size: 28px; }
         .logo .dot { color: #818cf8; }
         
-        /* NAVIGASI - BISA SCROLL */
         .sidebar-nav { 
             flex: 1;
-            overflow-y: auto;
             padding: 20px 0;
-            -webkit-overflow-scrolling: touch;
         }
         
         .nav-item { 
@@ -72,7 +69,6 @@
         .nav-item:hover { background: rgba(129,140,248,0.2); color: white; }
         .nav-item.active { background: linear-gradient(135deg, #818cf8, #4f46e5); color: white; }
         
-        /* Footer - tetap di bawah */
         .sidebar-footer { 
             padding: 20px; 
             border-top: 1px solid rgba(255,255,255,0.1);
@@ -278,8 +274,12 @@
         /* Mobile */
         @media (max-width: 768px) {
             .sidebar {
+                position: fixed;
                 left: -280px;
+                top: 0;
                 width: 280px;
+                height: 100vh;
+                min-height: auto;
             }
             .sidebar.show { left: 0; }
             

@@ -6,9 +6,9 @@ if (!isset($_SESSION['user_id'])) return;
 $is_railway = (getenv('RAILWAY_ENVIRONMENT') !== false);
 
 if ($is_railway) {
-    $base_url = '';  // Railway: root domain
+    $base_url = '';
 } else {
-    $base_url = '/Ujian_System';  // Local: folder project
+    $base_url = '/Ujian_System';
 }
 ?>
 <aside class="sidebar">
